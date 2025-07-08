@@ -1,0 +1,736 @@
+# **ULTIMATE THUNAI SYSTEM DEVELOPMENT PROMPT - EXACT SRS REPLICA**
+
+## **CRITICAL PROJECT MANDATE**
+You are building the **THUNAI (Together for Holistic Upliftment and Nurturing Attappady Inclusively)** system for District Administration Palakkad. This is a **ZERO-TOLERANCE project** - every single specification in the SRS must be implemented exactly as written. NO deviations, NO interpretations, NO shortcuts.
+
+## **EXACT SYSTEM ARCHITECTURE AS SPECIFIED**
+
+### **DUAL PLATFORM ARCHITECTURE**
+1. **Progressive Web App (PWA)** - Data Collection ONLY
+2. **Web Dashboard** - Data Access, Viewing, Reporting ONLY
+
+### **EXACT USER ROLE IMPLEMENTATION**
+```
+ROLE: Kudumbashree Enumerator
+├── Platform: Progressive Web App ONLY
+├── Access Scope: Assigned Hamlet ONLY
+├── Capabilities: Add/edit family & family member data
+├── Offline Requirement: MUST work offline, sync when online
+├── Geographic Restriction: Cannot access other hamlets
+
+ROLE: Anganwadi Worker / ST Promoter / ASHA Worker
+├── Platform: Web Dashboard ONLY
+├── Access Scope: Single Hamlet (view-only)
+├── Capabilities: View family/family member data ONLY
+
+ROLE: Panchayath Officer
+├── Platform: Web Dashboard ONLY
+├── Access Scope: Entire Panchayath
+├── Capabilities: View, search data across all hamlets, Generate reports, Download reports, Monitor data completeness
+
+ROLE: District/Block Officers (District Collector/Sub Collector/Tribal Dept Officer)
+├── Platform: Web Dashboard ONLY
+├── Access Scope: Block-wide access
+├── Capabilities: Full data access, Search, Report generation, Exports, Monitor hamlet/panchayath coverage
+```
+
+## **EXACT DATA COLLECTION FORMS - IMPLEMENT EVERY FIELD**
+
+### **1. BASIC HOUSEHOLD INFORMATION**
+```
+Name of Head of Family → Text Input
+House Address → Multi-line Text Area
+Post Office → Text Input
+Colony / Settlement Name → Text Input
+Category → Dropdown Selection
+MicroPlan Number → Alphanumeric Text Input
+Grama Panchayat → Dropdown Selection / Auto-detected based on user location
+Ward Number → Dropdown or Number Input
+House Number → Alphanumeric Text Input
+Number of Family Members → Number Input
+```
+
+### **2. FAMILY MEMBER DETAILS**
+```
+Name of Household Member → Text Input (Include Head of Family as First Member)
+Relationship with Head of Family → Dropdown (Spouse, Son/Daughter, Parent, Sibling, Grandchild, Other)
+Gender → Dropdown (Female / Male / Transgender)
+Age (as of Jan 1, 2025) → Number Input
+General Education Level → Dropdown (0) Illiterate, 1) Anganwadi/Preschool, 2) Informal LP, 3) Informal UP, 4) Secondary, 5) Higher Secondary, 6) Degree, 7) Postgraduate, 8) Vocational, 9) Others)
+Vocational / Practical Knowledge → Text Input (Optional)
+Occupation Sector → Dropdown Selection
+Marital Status → Dropdown (1) Married, 2) Separated, 3) Widowed, 4) Unmarried Mother, 5) Unmarried)
+Bank Account → Radio Buttons (Yes / No)
+Aadhaar Number → Radio Buttons (Yes / No)
+Pension → Dropdown (1) Widow, 2) Old Age, 3) Disability, 4) PWD Pension, 5) Service Pension, 6) Others)
+Additional Details (if any) → Text Area
+```
+
+### **3. MIGRANT WORKER DETAILS**
+```
+Name of the Member → Text Input
+Place → Text Input
+Work Sector → Dropdown (Business, Construction, Hospitality, Education, Transport, Agriculture, IT, Wage Labour, Animal Husbandry, Medical, Govt/Admin, Factory, Other)
+Skills/Expertise → Text Input
+Employment Duration → Number (Years/Months)
+Additional Details → Text Area (Optional – free text for job description, company, or income details)
+```
+
+### **4. LAND AND HOUSE INFORMATION**
+
+#### **Present Living Land**
+```
+Area (with unit) → Number Input (Acres/Cents/Sq.Mtrs)
+Ownership Type → Dropdown (1) Own, 2) Family-owned, 3) Leased, 4) Forest Land, 5) Others (Specify))
+Documentation Type → Dropdown (1) Title Deed, 2) Patta, 3) Forest Rights Act, 4) Others (Specify), 5) None)
+```
+
+#### **House Received Under Govt Scheme**
+```
+Owner Name → Text Input
+Scheme → Text Input
+Allotted By → Dropdown (1) Grama Panchayat, 2) Block Panchayat, 3) District Panchayat, 4) Forest Dept., 5) Tribal Dept., 6) Others)
+Area → Number Input
+Year Built → Number Input
+Sanctioned Amount → Number Input
+Installments → Number Input (Number of installments approved)
+Amount Received → Number Input
+Balance Amount → Number Input
+```
+
+#### **Family-Owned Lands**
+```
+Panchayat → Text Input (Panchayat name)
+Land Area → Number Input (With unit)
+Ownership Type → Dropdown (1) Own, 2) Family-owned, 3) Leased, 4) Forest Land, 5) Others (Specify))
+Documentation Type → Dropdown (1) Title Deed, 2) Patta, 3) Forest Rights Act, 4) Others (Specify), 5) None)
+```
+
+### **5. PHYSICAL STRUCTURE DETAILS OF THE HOUSE**
+```
+Completion Status → Dropdown (1) Completed, 2) Not started, 3) Under construction)
+Age of House → Number Input (Years)
+Current Condition → Dropdown (1) New/Good, 2) Old/Good, 3) Needs Repair, 4) Dilapidated)
+```
+
+#### **Roof Details**
+```
+Roof Material → Dropdown (Concrete, Tile, Asbestos Sheet, GI/Aluminum, Plastic Sheet, Palm Leaf, Other)
+Roof Condition → Dropdown (Good, Needs Minor Repairs, Dilapidated)
+Estimated Budget → Number Input (Optional – user can enter an estimated amount for repairs or upgrade)
+```
+
+#### **Wall Details**
+```
+Wall Material → Dropdown (Cement Blocks, Bricks, Mud Blocks, Bamboo, Clay, Others (Specify))
+Wall Condition → Dropdown (Stable, Repairable, Needs Major Repairs)
+Estimated Budget → Number Input (Optional)
+```
+
+#### **Floor Details**
+```
+Floor Material → Dropdown (Granite/Marble, Cement, Rough Finish, Mud Floor, Others (Specify))
+Needs Repair → Radio Buttons (Yes / No)
+Estimated Budget → Number Input (Optional)
+```
+
+#### **Door & Window Details**
+```
+Door Condition → Dropdown (Good, Needs Repair, Dilapidated, Temporary Setup)
+Number of Good Doors → Number Input (Count of functional doors)
+Window Condition → Dropdown (Good, Needs Repair, Dilapidated, Temporary Setup)
+Number of Good Windows → Number Input (Count of functional windows)
+Estimated Budget → Number Input (Optional for repair or replacement)
+```
+
+#### **Kitchen Utilities & Condition (If Kitchen Exists)**
+```
+Kitchen Ventilation → Dropdown (Good, Needs Repair, Poor, None)
+Available Appliances → Multi-Select Checkboxes (Mixer, Fridge, Oven, Grinder, Pressure Cooker, Others (Specify))
+Estimated Budget for Kitchen → Number Input (Optional – for repair or equipment upgrade)
+```
+
+### **6. ELECTRICAL AND LIGHTING FACILITIES**
+```
+Is the house electrified? → Radio Buttons (Yes / No)
+Is there an electricity connection? → Radio Buttons (Yes / No)
+Is wiring complete? → Dropdown (Fully Wired / Partially Wired)
+Is wiring safe? → Dropdown (Safe / Unsafe / Requires Rewiring)
+Cooking Fuel Used → Dropdown (LPG, Firewood, Kerosene, Induction, Biogas, Others (Specify))
+Type of Stove Used → Dropdown (Single Burner, Double Burner, Traditional Stove, Others (Specify))
+Number of Bulbs → Number Input (Total number of bulbs installed)
+Types of Bulbs Used → Multi-Select Checkboxes (Incandescent, CFL, LED)
+Is there a solar energy system? → Radio Buttons (Yes / No)
+Solar Setup used for → Text Area
+Current Condition of Solar System → Dropdown (Functional / Needs Maintenance / Not Working)
+Additional Comments or Issues → Text Area (Free text – describe problems or observations)
+Estimated Budget → Number Input (Optional)
+```
+
+### **7. SANITATION AND BATHROOM FACILITIES**
+```
+Is there a toilet in the house? → Radio Buttons (Yes / No)
+Is there a bathroom in the house? → Radio Buttons (Yes / No)
+Do all family members use the toilet? → Radio Buttons (Yes / No)
+Is the family using a public/shared toilet? → Radio Buttons (Yes / No)
+Are family members satisfied with the public toilet? → Radio Buttons (Yes / No)
+Quality of public/shared toilet used → Dropdown (Good / Satisfactory / Poor / Very Poor)
+Distance from toilet tank to nearest water source → Number Input (In meters)
+Toilet Tank Type → Dropdown (Single Pit / Twin Pit / Septic Tank)
+Toilet Closet Type → Dropdown (Indian / European)
+Roof Material → Dropdown (Concrete / Tile / Sheet / Others)
+Wall Type → Dropdown (Tile/Concrete/Temporary)
+Door Type → Dropdown (Wooden / PVC / GI / Sheet / Temporary)
+Floor Type → Dropdown (Tile/ Cement / Concrete / Temporary)
+Water Availability → Dropdown (Inside / Nearby / Far Away / Needs to be carried)
+Additional Notes → Text Area (Optional description of toilet/bathroom condition)
+Estimated Budget → Number Input (Optional – for repairs or improvements)
+```
+
+### **8. WATER SOURCE AND MANAGEMENT**
+```
+Has the household adopted any water conservation methods? → Radio Buttons (Yes / No)
+If Yes, specify methods → Text Area (Optional – e.g., rainwater harvesting, bunding etc.)
+Is there a water storage tank in the house? → Radio Button (Yes/No)
+```
+
+#### **Water Source Data for – Drinking/Cooking and Household Activities**
+```
+Type of Water Source → Dropdown (1) Open Well, 2) Water Connection, 3) Public Tap, 4) Spring, 5) Stream, 6) River, 7) Pond, 8) Dam, 9) Rainwater, 10) Others (Specify))
+Ownership of Source → Dropdown (1) Own, 2) Neighbor's, 3) Government, 4) Forest Department)
+Water Availability → Dropdown (1) Year-round, 2) Only during rainy season, 3) 6 months, 4) 3 months)
+Water Quality → Dropdown (1) Good, 2) Salty/Brackish, 3) Has Odor, 4) Others (Specify))
+Water Collection Method → Dropdown (1) Pipe, 2) Collected in containers, 3) Rainwater filtered via cloth)
+Additional Remarks → Text Area (Optional)
+Estimated Budget (if any) → Number Input (For water facility improvement or source creation)
+```
+
+### **9. WASTE MANAGEMENT DETAILS**
+```
+Current Solid Waste Disposal Facility Available → Text Input
+Current Liquid Waste Disposal Facility Available → Text Input
+Household Waste Water Handling Options → Text Input
+Additional Remarks → Text Area (Optional)
+Estimated Budget for Improvements → Number Input (Amount planned for waste disposal infrastructure)
+```
+
+### **10. FAMILY MEMBERS' HEALTH CONDITIONS**
+```
+Name of Family Member → Text Input (Name of the individual)
+Health Condition → Text Input
+Place of Treatment → Text Input (Hospital or treatment center name)
+Additional Details → Text Area (Optional notes)
+Estimated Budget (if applicable) → Number Input
+```
+
+### **11. EDUCATION-RELATED INFORMATION**
+
+#### **Currently Studying Students**
+```
+Name of Student → Text Input (Full name)
+Class / Grade → Dropdown Selection
+Name of School / Institution → Text Input (Full name of the school or college)
+Issues Faced in Education → Text Area (e.g., Transport, Lack of materials, Infrastructure, etc.)
+Additional Remarks → Text Area (Optional)
+Estimated Budget (if needed) → Number Input (Optional support required for fees, transport, books, etc.)
+```
+
+#### **Students Dropped Out**
+```
+Name of Student → Text Input (Full name)
+Age → Number Input (Age of the student)
+Last Class Attended → Text Input
+Year of Dropout → Number Input
+Reason for Dropout → Text Area (e.g., Financial, Transport, Illness, Not interested)
+Additional Notes → Text Area (Optional)
+Estimated Budget for Re-entry → Number Input
+```
+
+### **12. EMPLOYMENT AND REGISTRATION DETAILS OF FAMILY MEMBERS**
+```
+Name of Family Member → Text Input (Full name of the person)
+Age → Number Input (In completed years)
+Employment Exchange → Text Input
+Registered with PSC (Public Service Commission)? → Checkbox (Yes / No)
+DWMS → Text Input
+Additional Details → Text Area (Optional – include course name, sector, etc.)
+```
+
+### **13. ENTITLEMENTS AND IDENTITY DOCUMENTS**
+```
+Land Ownership Document (Title/Patta) → Radio Buttons (Yes / No)
+Ration Card Available → Radio Buttons (Yes / No)
+Ration Card → Dropdown (Yellow / Pink / Blue / White)
+Health Insurance Card → Radio Buttons (Yes / No)
+Employee Card → Radio Buttons (Yes / No)
+Beneficiary of the homeless support scheme/Belongs to Extremely poor Category → Radio Buttons (Yes / No)
+Remarks → Text Input
+```
+
+### **14. NUTRITION ACCESS – Add details for each Source of Support Selected**
+```
+Source of Support → Dropdown/Text (1) Ration, 2) Anganwadi, 3) Tribal Welfare Dept., 4) Doorstep Delivery (Vaathilpadi Sevana), 5) Others)
+Support Currently Being Received From Ration Shop → Radio Buttons (Yes / No)
+Item 1 – Name → Text Input
+Item 1 – Quantity Received → Number Input
+Item 1 – Measurement Unit → Dropdown Selection
+Support Currently Being Received From Anganwadi → Radio Buttons (Yes / No)
+Item 2 – Name → Text Input
+Item 2 – Quantity Received → Number Input
+Item 2 – Measurement Unit → Dropdown Selection
+Support Currently Being Received From Tribal Department → Radio Buttons (Yes / No)
+Item 3 – Name → Text Input
+Item 3 – Quantity Received → Number Input
+Item 3 – Measurement Unit → Dropdown Selection
+Support Currently Being Received From Vathil Padi → Radio Buttons (Yes / No)
+```
+
+### **15. TRANSPORTATION FACILITIES**
+```
+Type of Access Path → Dropdown (1) Accessible by four-wheeler, 2) Accessible by two-wheeler, 3) Footpath only, 4) No Road)
+Distance to Main Road → Number Input (In meters or kilometers)
+Current Condition of the Path → Dropdown (1) Good, 2) Rocky, 3) Others (Specify in text field))
+Type of Vehicle Owned → Dropdown (1) Bicycle, 2) Two-Wheeler, 3) Three-Wheeler (Auto), 4) Four-Wheeler)
+Additional Notes → Text Area
+```
+
+### **16. PARTICIPATION IN NEIGHBOURHOOD OR SELF-HELP GROUPS (SHGs)**
+```
+Name of Member → Text Input (Name of the person in the household)
+Name of Group / Organization → Text Input (E.g., Kudumbashree, Ayalkoottam, SHG, etc.)
+Years of Membership → Number Input (In years)
+Additional Details / Role in Group → Text Area
+```
+
+### **17. DETAILS OF EXISTING LOANS / DEBTS**
+```
+Source of Loan → Text Input (E.g., Bank, Cooperative Society, SHG, Private Moneylender, Microfinance, Others)
+Purpose of Loan → Text Input (E.g., Housing, Education, Medical, Agriculture, Marriage, etc.)
+Year Taken → Number Input (The year the loan was issued (e.g., 2022))
+Total Loan Amount → Number Input
+Interest Rate → Number Input (with % symbol)
+Repayment Frequency → Dropdown (Monthly / Quarterly / Yearly)
+Monthly Repayment Amount → Number Input (Amount currently being paid per repayment cycle)
+Outstanding Balance (if any) → Number Input (Remaining unpaid loan amount)
+Additional Remarks → Text Area (Optional – e.g., delays, rescheduling, loan ID, etc.)
+```
+
+### **18. PARTICIPATION IN BALASABHA**
+```
+Are there children in the household who are members of Balasabha? → Radio Buttons (Yes / No)
+Number of children enrolled in Balasabha → Number Input (Required only if "Yes" is selected)
+```
+
+### **19. PARTICIPATION IN OTHER CHILD-FOCUSED GROUPS**
+```
+Name of Organization → Text Input
+Name(s) of Child Participant(s) → Text Input (One or more names)
+Role / Activity → Text Area (Optional – E.g., volunteer, leader, participant in event, etc.)
+Additional Notes → Text Area (Optional)
+```
+
+### **20. AGRICULTURAL LAND & IRRIGATION**
+```
+Type of Agricultural Land → Dropdown (1) Dry Land, 2) Forest Land, 3) Other (Specify))
+Total Cultivated Land Area → Number Input (In acres/cents/hectares)
+Currently Unused Land Area → Number Input
+Area with High Water Availability → Number Input
+Area with Medium Water Availability → Number Input
+Irrigation Source → Multi-select Checkboxes (1) Pond, 2) Open Well, 3) Borewell, 4) Stream, 5) Canal, 6) Spring, 7) River, 8) Others)
+Additional Remarks → Text Area (Optional – e.g., seasonal usage, shared land, water shortage, etc.)
+```
+
+### **21. PREFERRED MODE OF CULTIVATION**
+```
+Preferred Farming Method → Dropdown (1) Group Farming (Koottukrishi), 2) Collective Farming (Samghakrishi), 3) Lease Farming, 4) Individual Farming (Self-owned))
+```
+
+### **22. TRADITIONAL / INDIGENOUS FARMING & SEASONAL PRACTICES**
+```
+Any traditional or indigenous farming practiced? → Radio Buttons (Yes / No)
+Details of Traditional Crop / Practice → Text Input (E.g., native rice varieties, intercropping methods)
+Last Season When It Was Practiced → Dropdown/Input (E.g., Summer 2022, Monsoon 2023)
+Is there interest to resume traditional farming? → Radio Buttons (Yes / No)
+If Yes, under what mode? → Dropdown (1) Individual, 2) Group / SHG)
+Additional Support Required → Text Area (Optional – technical, financial, labor, land, etc.)
+Estimated Budget for Revival → Number Input (Optional)
+```
+
+### **23. LIVESTOCK AND POULTRY DETAILS**
+```
+Animal Category → Dropdown (1) Chicken, 2) Goat, 3) Cow, 4) Buffalo, 5) Bull, 6) Others (Specify))
+Number of Animals → Number Input (Count of each type of animal)
+Breed Type → Dropdown/Text (1) Indigenous (Local), 2) Hybrid / Crossbreed)
+Estimated Annual Income → Number Input
+Additional Support Needed → Text Area
+Interest in Agricultural / Animal Husbandry Training → Radio Buttons (Yes/No)
+```
+
+### **24. FOOD ITEMS – MONTHLY CONSUMPTION & SOURCE**
+```
+Name of Food Item → Fixed Text Label (E.g., Rice/Wheat, Vegetables, Fruits, Tuber Crops, Eggs, Milk, etc.)
+Monthly Quantity Consumed → Number Input
+Measurement Unit → Dropdown Selection
+Is This Produced at Home? → Radio Buttons (Yes / No)
+If Not, Where Is It Sourced From? → Dropdown (1) Market, 2) Ration Shop, 3) Neighbor/Friends, 4) Local Vendor, 5) Others)
+```
+
+### **25. CASH CROPS**
+```
+Name of Cash Crop → Text Input
+Number → Number Input
+Are any crops older than 3 years? → Radio Buttons (Yes / No)
+Income Received (Annually) → Number Input
+Additional Details → Text Area
+```
+
+### **26. FOREST RESOURCE COLLECTION**
+```
+Name of Forest Product Collected → Text Input
+Number of Days Collected (in 1 year) → Number Input
+Quantity Collected (in kg per year) → Number Input
+Average Selling Price (per kg) → Number Input (In INR)
+Place/Buyer Where It Is Sold → Text Input (E.g., Local market, Tribal cooperative, Direct to households, etc.)
+```
+
+### **27. SOCIAL ISSUES**
+```
+Type of Social Issue → Text Input (E.g., Alcoholism, Domestic Violence, Caste Discrimination, Neglect, Drug Abuse)
+Additional Details → Text Area (Optional – incident frequency, affected individuals, past complaints, etc.)
+```
+
+### **28. PARTICIPATION IN WAGE EMPLOYMENT SCHEMES**
+```
+Number of workdays received (2023–24) → Number Input (As per employment record)
+Distance to job location → Number Input (In kilometers)
+Mode of wage payment → Dropdown (1) Bank Transfer, 2) Cash, 3) Post Office)
+Current availability of work → Text Input (E.g., Daily, Weekly, Seasonal, Irregular)
+Area or Sector of Work → Text Input (E.g., Roadwork, Pitting, Plantation, Drainage, Building, etc.)
+```
+
+### **29. POTENTIAL NEW LIVELIHOOD OPPORTUNITIES**
+```
+Name of Member → Text Input (Person in the household interested in new livelihood)
+Age → Number Input (In years)
+Type of Work / Skill Interested In → Text Input (E.g., Tailoring, Farming, Driving, Animal Husbandry, Carpentry, Sales, etc.)
+Support Required → Text Area (E.g., Toolkits, Training, Seed Capital, Credit Access)
+Expected Annual Income (if opportunity realized) → Number Input (Estimated yearly income from this activity)
+```
+
+### **30. INTEREST IN ARTS AND SPORTS**
+```
+Name of Member → Text Input (Full name of the individual)
+Age → Number Input (In years)
+Area of Interest (Art/Sport) → Text Input (E.g., Dance, Drawing, Football, Kabaddi, Singing, Volleyball, etc.)
+Additional Details → Text Area (E.g., Participation in events, awards, training needs, etc.)
+```
+
+### **31. ACCESS TO PUBLIC INSTITUTIONS AND SERVICES**
+```
+Name of Institution → Fixed List Label/Dropdown (e.g., Gram Panchayat, Block Panchayat, PHC, Anganwadi, Forest Dept., Police Station, etc.)
+Distance from Home → Number Input (In kilometers or meters)
+Services Availed → Multi-Select Checkboxes (E.g., Health check-up, MGNREGS assistance, Ration, Animal Health, Banking, Loans, etc.)
+Support Received → Text Area (E.g., free medicines, seedlings, housing, etc.)
+Satisfaction Level (Rating) → Dropdown/Radio (4 – Very Satisfied, 3 – Satisfied, 2 – Limited Access, 1 – Not Available, 0 – Not Aware / Never Used)
+```
+
+### **32. PHONE CONNECTIVITY**
+```
+Does the household have a phone? → Radio Buttons (Yes / No)
+Mobile Phone Number → Text Input (10-digit number; allow multiple if applicable (comma-separated))
+Landline Number → Text Input (Include STD code if required (e.g., 04931-XXXXXX))
+```
+
+### **33. ADDITIONAL INFORMATION**
+```
+Benefits Received → Text Input
+Additional Remarks → Text Input
+Comments on the Survey Conducted → Text Input
+```
+
+## **EXACT DATA MODEL IMPLEMENTATION**
+
+### **CORE ENTITIES WITH EXACT RELATIONSHIPS**
+```
+Panchayath Master Table
+├── Links to: Hamlets, Households
+
+Hamlets Master Table
+├── Links to: Panchayath, Households
+
+Household
+├── Description: Primary unit of data collection. Includes location, address, head of family, etc.
+├── Links to: Hamlet, Panchayath, Members, Land, Utilities
+
+Member
+├── Description: Each person in a household with demographic, health, education, and employment data
+├── Links to: Household, may also relate to Talents, Loans, etc.
+
+Migrant Worker
+├── Description: Migration details for members working away from home
+├── Links to: Household or Member
+
+Land Asset
+├── Description: Ownership and documentation of land owned or used
+├── Links to: Household
+
+Govt Scheme House
+├── Description: Housing received under government schemes
+├── Links to: Household
+
+House Conditions
+├── Description: Details like roof, wall, floor material, electrical wiring, bulb types, etc.
+├── Links to: Household
+
+Sanitation & Water
+├── Description: Toilet and bathroom access, water sources, and distance to water supply
+├── Links to: Household
+
+Waste Management
+├── Description: How waste (solid and liquid) is managed at household level
+├── Links to: Household
+
+Education Details
+├── Description: School-going and dropout student info, education issues, and budgets
+├── Links to: Member
+
+Employment
+├── Description: Employment status and registration with schemes like NREGS or PSC
+├── Links to: Member
+
+Entitlements
+├── Description: Benefits like ration card, insurance, and land titles
+├── Links to: Household
+
+Local Memberships
+├── Description: Membership in local institutions or SHGs
+├── Links to: Member
+
+Agriculture & Livestock
+├── Description: Cultivated area, crop types, irrigation, and livestock details
+├── Links to: Household
+
+Food Consumption
+├── Description: Monthly consumption and source of various food items
+├── Links to: Household
+
+Cash Crops
+├── Description: Income-generating crops and their yields
+├── Links to: Household
+
+Forest Resources
+├── Description: Collection of forest products and related income
+├── Links to: Household
+
+Social Issues
+├── Description: Reported issues such as violence, alcoholism, or discrimination
+├── Links to: Household
+
+Employment Summary
+├── Description: Wage labor days, wages, and seasonal migration
+├── Links to: Household
+
+Talents
+├── Description: Individual skills in arts, music, or sports
+├── Links to: Member
+
+Public Services Access
+├── Description: Distance and satisfaction with services like PHC, Anganwadi, Banks, etc.
+├── Links to: Household
+```
+
+### **ADMINISTRATIVE & AUDIT ENTITIES**
+```
+Users
+├── Description: Login credentials, role assignment, and scope mapping
+
+Roles
+├── Description: Defines permissions per user type (Enumerator, Officer, Admin, etc.)
+
+Audit Logs
+├── Description: Tracks logins, data edits, sync attempts, and access logs
+
+Location Registry
+├── Description: Administrative mapping of blocks, panchayats, and hamlets
+```
+
+## **EXACT FUNCTIONAL REQUIREMENTS IMPLEMENTATION**
+
+### **4.1 USER MANAGEMENT AND AUTHENTICATION**
+```
+User Registration & Assignment:
+├── Admin can create and manage users across roles: Kudumbashree Enumerator, Anganwadi worker, ST Promoter, Asha Worker, Panchayath Officer, and District Officials
+├── Each user is mapped to a geographic unit (hamlet/panchayath/block)
+├── Role-based permissions are automatically applied upon user creation
+
+Login & Secure Access:
+├── All users log in via secure credentials
+├── Optional OTP-based two-factor authentication (2FA) is available
+├── Session timeout, password reset, and password change features are supported
+
+Role-Based Access Control (RBAC):
+├── Enumerator: Create/edit data for assigned hamlet
+├── Anganwadi/ST Promoter/Asha Worker: View-only access to assigned hamlet
+├── Panchayath Officer: View access for all hamlets within panchayath
+├── Block/District Officers: Full access across all levels with reports and data exports
+```
+
+### **4.2 DATA COLLECTION**
+```
+Family & Member Registration:
+├── Enumerators can add family records including: Basic Household Details, Family member details, Address and location, Socioeconomic details etc.
+├── Under each family, members can be added with: Demographics (name, age, gender, relation), Education, occupation, health status etc.
+```
+
+### **4.3 DATA ACCESS AND VIEWING (WEB PORTAL)**
+```
+Dashboards by Role:
+├── Hamlet-level: Local data for assigned hamlet
+├── Panchayath-level: Aggregated data for all hamlets within the Panchayath
+├── Block/District-level: Complete data access and visual summaries
+
+Search and View:
+├── Search filters available for different parameters: age range, gender, occupation, education, health condition, Aadhaar status etc
+├── View complete family details along with individual members
+
+Data Drill-Down:
+├── View hierarchy: Block → Panchayath → Hamlet → Family → Member
+```
+
+### **4.4 REPORTING AND ANALYTICS**
+```
+Dynamic Report Builder:
+├── Users can build reports using filters
+├── Reports are customizable per role and need
+
+Export Options:
+├── Reports can be downloaded in: PDF, Excel/CSV
+```
+
+### **4.5 AUDIT AND MONITORING**
+```
+Activity Logging:
+├── Tracks data creation, edits
+├── Logs user login/logout times
+
+Access Monitoring:
+├── Includes IP address, device ID for audit trails
+```
+
+### **4.6 ADMINISTRATIVE CONFIGURATION**
+```
+Location Management:
+├── Admin can add/edit hamlets, panchayaths, and blocks
+├── Configure hierarchical mapping for accurate reporting
+
+Role and Permission Management:
+├── Add new roles and assign appropriate access scopes
+├── Map users to locations and functional roles easily
+```
+
+## **EXACT NON-FUNCTIONAL REQUIREMENTS**
+
+### **5.1 SECURITY REQUIREMENTS**
+```
+├── Sensitive data must be encrypted
+├── Role-based access control to restrict data visibility
+├── Audit trails should be maintained
+```
+
+### **5.2 USABILITY REQUIREMENTS**
+```
+├── Web portal should be responsive and user-friendly
+├── Local language support (Malayalam - unicode) required
+```
+
+## **EXACT REPORTING SPECIFICATIONS**
+
+### **ADVANCED QUERY FILTERS**
+```
+├── Filter by multiple attributes (e.g., hamlet, age range, gender, Aadhaar availability, education level, occupation etc.)
+├── Multi-criteria filtering using dropdowns and logical operations (AND/OR)
+```
+
+### **REPORT GENERATION**
+```
+├── Real-time data aggregation from centralized database
+├── Supports grouped reports (e.g., total families in a hamlet, children under 5 years in a panchayath etc.)
+```
+
+### **EXPORT FEATURES**
+```
+├── Export reports in: PDF, Excel (.xlsx)
+├── Reports include metadata: generated date, user, filters applied
+```
+
+### **ACCESS LEVELS**
+```
+├── Panchayath users: Download reports within their jurisdiction
+├── Block/District officers: Full reporting with search, filter and export
+```
+
+## **MANDATORY TECHNICAL SPECIFICATIONS**
+
+### **PROGRESSIVE WEB APP REQUIREMENTS**
+```
+├── MUST work offline completely
+├── Service Workers for caching
+├── Background sync for data submission
+├── IndexedDB for local storage
+├── Touch-optimized interface
+├── Malayalam Unicode support
+├── Auto-save functionality
+├── Form validation (client + server)
+```
+
+### **WEB DASHBOARD REQUIREMENTS**
+```
+├── Responsive design (desktop/tablet)
+├── Role-based interface rendering
+├── Real-time data visualization
+├── Advanced search with multiple filters
+├── Export functionality with loading states
+├── Breadcrumb navigation
+├── Geographic hierarchy navigation
+```
+
+### **BACKEND API REQUIREMENTS**
+```
+├── RESTful API design
+├── JWT authentication with refresh tokens
+├── Role-based authorization middleware
+├── Data encryption at rest and in transit
+├── Comprehensive audit logging
+├── Offline sync conflict resolution
+├── Report generation engine
+├── Database optimization for complex queries
+```
+
+### **SECURITY IMPLEMENTATION**
+```
+├── All sensitive data encrypted
+├── IP address logging
+├── Device ID tracking
+├── Session timeout management
+├── Strong password policies
+├── Optional 2FA implementation
+├── Complete audit trail
+├── Role-based data access restrictions
+```
+
+## **FINAL MANDATE**
+
+This system must be delivered as a **PRODUCTION-READY, ENTERPRISE-GRADE APPLICATION** that is an **EXACT REPLICA** of every specification in the THUNAI SRS document. Every form field, every dropdown option, every user role, every access restriction, every report filter, and every functional requirement must be implemented precisely as specified.
+
+**ZERO TOLERANCE FOR:**
+- Missing form fields
+- Incorrect dropdown options
+- Wrong user access levels
+- Missing export features
+- Incomplete offline functionality
+- Security vulnerabilities
+- Performance issues
+- Malayalam Unicode problems
+
+**DELIVERABLE EXPECTATION:**
+A fully functional system that the District Administration Palakkad can deploy immediately for data collection across

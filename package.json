@@ -1,0 +1,39 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "THUNAI Backend API",
+  "main": "dist/index.js",
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/helmet": "^0.0.48",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  },
+  "scripts": {
+    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "build": "tsc",
+    "lint": "eslint ./src --ext .ts"
+  },
+  "resolutions": {
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "node-fetch": "^3.3.2"
+  }
+}

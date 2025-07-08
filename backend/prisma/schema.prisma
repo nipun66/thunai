@@ -1,0 +1,739 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// SRS Section 1: Basic Household Information
+model households {
+  household_id         String                 @id @default(uuid())
+  hamlet_id            Int
+  household_head_name  String
+  address              String?
+  post_office          String?
+  colony_settlement_name String?
+  category             String?
+  micro_plan_number    String?
+  grama_panchayat      String?
+  ward_number          String?
+  house_number         String?
+  family_members_count Int?                   @default(0)
+  ration_card_number   String?                @unique
+  survey_date          DateTime
+  enumerator_id        String
+  created_at           DateTime?              @default(now())
+  updated_at           DateTime?              @default(now())
+  local_id             String?                @unique
+  last_synced_at       DateTime?
+  is_deleted           Boolean?               @default(false)
+  
+  // Relations
+  users                users                  @relation(fields: [enumerator_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  hamlets              hamlets                @relation(fields: [hamlet_id], references: [hamlet_id], onDelete: NoAction, onUpdate: NoAction)
+  
+  // SRS Section 2: Family Members
+  members              members[]
+  
+  // SRS Section 3: Migrant Workers
+  migrant_workers      migrant_workers[]
+  
+  // SRS Section 4: Land and House
+  land_assets          land_assets[]
+  govt_scheme_houses   govt_scheme_houses[]
+  
+  // SRS Section 5: Physical Structure
+  housing_details      housing_details[]
+  
+  // SRS Section 6: Electrical and Lighting
+  electrical_facilities electrical_facilities[]
+  
+  // SRS Section 7: Sanitation and Bathroom
+  sanitation_facilities sanitation_facilities[]
+  
+  // SRS Section 8: Water Source
+  water_sources        water_sources[]
+  
+  // SRS Section 9: Waste Management
+  waste_management     waste_management[]
+  
+  // SRS Section 10: Health Conditions
+  health_conditions    health_conditions[]
+  
+  // SRS Section 11: Education
+  education_details    education_details[]
+  
+  // SRS Section 12: Employment
+  employment_details   employment_details[]
+  
+  // SRS Section 13: Entitlements
+  entitlements         entitlements[]
+  
+  // SRS Section 14: Nutrition Access
+  nutrition_access     nutrition_access[]
+  
+  // SRS Section 15: Transportation
+  transportation       transportation[]
+  
+  // SRS Section 16: SHG Participation
+  shg_participation    shg_participation[]
+  
+  // SRS Section 17: Loans and Debts
+  loans_debts          loans_debts[]
+  
+  // SRS Section 18: Balasabha
+  balasabha_participation balasabha_participation[]
+  
+  // SRS Section 19: Child Groups
+  child_groups         child_groups[]
+  
+  // SRS Section 20: Agricultural Land
+  agricultural_land    agricultural_land[]
+  
+  // SRS Section 21: Cultivation Mode
+  cultivation_mode     cultivation_mode[]
+  
+  // SRS Section 22: Traditional Farming
+  traditional_farming  traditional_farming[]
+  
+  // SRS Section 23: Livestock
+  livestock_details    livestock_details[]
+  
+  // SRS Section 24: Food Consumption
+  food_consumption     food_consumption[]
+  
+  // SRS Section 25: Cash Crops
+  cash_crops           cash_crops[]
+  
+  // SRS Section 26: Forest Resources
+  forest_resources     forest_resources[]
+  
+  // SRS Section 27: Social Issues
+  social_issues        social_issues[]
+  
+  // SRS Section 28: Wage Employment
+  wage_employment      wage_employment[]
+  
+  // SRS Section 29: Livelihood Opportunities
+  livelihood_opportunities livelihood_opportunities[]
+  
+  // SRS Section 30: Arts and Sports
+  arts_sports          arts_sports[]
+  
+  // SRS Section 31: Public Institutions
+  public_institutions  public_institutions[]
+  
+  // SRS Section 32: Phone Connectivity
+  phone_connectivity   phone_connectivity[]
+  
+  // SRS Section 33: Additional Information
+  additional_info      additional_info[]
+}
+
+// SRS Section 2: Family Member Details
+model members {
+  member_id          String               @id @default(uuid())
+  household_id       String
+  name               String
+  aadhaar_number     String?              @unique
+  date_of_birth      DateTime
+  gender             String
+  relation_to_head   String
+  marital_status     String?
+  age                Int?                 @default(0)
+  general_education_level String?
+  vocational_knowledge String?
+  occupation_sector  String?
+  bank_account       Boolean?             @default(false)
+  has_aadhaar        Boolean?             @default(false)
+  pension            String?
+  additional_details String?
+  created_at         DateTime?            @default(now())
+  updated_at         DateTime?            @default(now())
+  local_id           String?              @unique
+  last_synced_at     DateTime?
+  is_deleted         Boolean?             @default(false)
+  
+  households         households           @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 3: Migrant Worker Details
+model migrant_workers {
+  migrant_worker_id   Int        @id @default(autoincrement())
+  household_id        String
+  name                String
+  place               String?
+  work_sector         String?
+  skills_expertise    String?
+  employment_duration Int?       @default(0)
+  additional_details  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 4: Land and House Information
+model land_assets {
+  land_asset_id       Int        @id @default(autoincrement())
+  household_id        String
+  land_type           String?
+  ownership_type      String?
+  area_in_acres       Float?
+  documentation_type  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model govt_scheme_houses {
+  govt_house_id       Int        @id @default(autoincrement())
+  household_id        String
+  owner_name          String?
+  scheme              String?
+  allotted_by         String?
+  area                Float?
+  year_built          Int?
+  sanctioned_amount   Float?
+  installments        Int?
+  amount_received     Float?
+  balance_amount      Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 5: Physical Structure Details
+model housing_details {
+  housing_id          Int        @id @default(autoincrement())
+  household_id        String
+  completion_status   String?
+  age_of_house        Int?
+  current_condition   String?
+  roof_material       String?
+  roof_condition      String?
+  roof_budget         Float?
+  wall_material       String?
+  wall_condition      String?
+  wall_budget         Float?
+  floor_material      String?
+  floor_needs_repair  Boolean?
+  floor_budget        Float?
+  door_condition      String?
+  good_doors_count    Int?
+  window_condition    String?
+  good_windows_count  Int?
+  door_window_budget  Float?
+  kitchen_ventilation String?
+  kitchen_appliances  String?
+  kitchen_budget      Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 6: Electrical and Lighting
+model electrical_facilities {
+  facility_id         Int        @id @default(autoincrement())
+  household_id        String
+  is_electrified      Boolean?
+  has_connection      Boolean?
+  wiring_complete     String?
+  wiring_safe         String?
+  cooking_fuel        String?
+  stove_type          String?
+  bulbs_count         Int?
+  bulb_types          String?
+  has_solar           Boolean?
+  solar_usage         String?
+  solar_condition     String?
+  additional_comments String?
+  estimated_budget    Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 7: Sanitation and Bathroom
+model sanitation_facilities {
+  facility_id         Int        @id @default(autoincrement())
+  household_id        String
+  has_toilet          Boolean?
+  has_bathroom        Boolean?
+  all_use_toilet      Boolean?
+  uses_public_toilet  Boolean?
+  satisfied_with_public Boolean?
+  public_toilet_quality String?
+  distance_to_water   Int?
+  toilet_tank_type    String?
+  toilet_closet_type  String?
+  toilet_roof_material String?
+  toilet_wall_type    String?
+  toilet_door_type    String?
+  toilet_floor_type   String?
+  water_availability  String?
+  additional_notes    String?
+  estimated_budget    Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 8: Water Source and Management
+model water_sources {
+  source_id           Int        @id @default(autoincrement())
+  household_id        String
+  has_conservation    Boolean?
+  conservation_methods String?
+  has_storage_tank    Boolean?
+  source_type         String?
+  ownership           String?
+  availability        String?
+  quality             String?
+  collection_method   String?
+  additional_remarks  String?
+  estimated_budget    Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 9: Waste Management
+model waste_management {
+  waste_id            Int        @id @default(autoincrement())
+  household_id        String
+  solid_waste_facility String?
+  liquid_waste_facility String?
+  wastewater_handling String?
+  additional_remarks  String?
+  estimated_budget    Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 10: Health Conditions
+model health_conditions {
+  condition_id        Int        @id @default(autoincrement())
+  household_id        String
+  member_name         String?
+  health_condition    String?
+  place_of_treatment  String?
+  additional_details  String?
+  estimated_budget    Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 11: Education Information
+model education_details {
+  education_id        Int        @id @default(autoincrement())
+  household_id        String
+  student_name        String?
+  class_grade         String?
+  school_institution  String?
+  issues_faced        String?
+  additional_remarks  String?
+  estimated_budget    Float?
+  is_dropout          Boolean?
+  dropout_age         Int?
+  last_class          String?
+  dropout_year        Int?
+  dropout_reason      String?
+  reentry_budget      Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 12: Employment and Registration
+model employment_details {
+  employment_id       Int        @id @default(autoincrement())
+  household_id        String
+  member_name         String?
+  age                 Int?
+  employment_exchange String?
+  registered_psc      Boolean?
+  dwms                String?
+  additional_details  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 13: Entitlements and Identity Documents
+model entitlements {
+  entitlement_id      Int        @id @default(autoincrement())
+  household_id        String
+  land_ownership_document Boolean?
+  ration_card_available Boolean?
+  ration_card_type    String?
+  health_insurance    Boolean?
+  employee_card       Boolean?
+  homeless_support_scheme Boolean?
+  remarks             String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 14: Nutrition Access
+model nutrition_access {
+  nutrition_id        Int        @id @default(autoincrement())
+  household_id        String
+  source_of_support   String?
+  ration_shop_receiving Boolean?
+  ration_items        String?
+  anganwadi_receiving Boolean?
+  anganwadi_items     String?
+  tribal_dept_receiving Boolean?
+  tribal_dept_items   String?
+  vathil_padi_receiving Boolean?
+  vathil_padi_items   String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 15: Transportation Facilities
+model transportation {
+  transport_id        Int        @id @default(autoincrement())
+  household_id        String
+  access_path_type    String?
+  distance_to_main_road Int?
+  path_condition      String?
+  vehicle_owned       String?
+  additional_notes    String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 16: SHG Participation
+model shg_participation {
+  shg_id              Int        @id @default(autoincrement())
+  household_id        String
+  member_name         String?
+  group_name          String?
+  years_membership    Int?
+  additional_details  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 17: Loans and Debts
+model loans_debts {
+  loan_id             Int        @id @default(autoincrement())
+  household_id        String
+  source              String?
+  purpose             String?
+  year_taken          Int?
+  total_amount        Float?
+  interest_rate       Float?
+  repayment_frequency String?
+  monthly_repayment   Float?
+  outstanding_balance Float?
+  additional_remarks  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 18: Balasabha Participation
+model balasabha_participation {
+  participation_id    Int        @id @default(autoincrement())
+  household_id        String
+  has_children_members Boolean?
+  children_count      Int?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 19: Child-Focused Groups
+model child_groups {
+  group_id            Int        @id @default(autoincrement())
+  household_id        String
+  organization_name   String?
+  child_participants  String?
+  role_activity       String?
+  additional_notes    String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 20: Agricultural Land & Irrigation
+model agricultural_land {
+  land_id             Int        @id @default(autoincrement())
+  household_id        String
+  land_type           String?
+  total_cultivated_area Float?
+  unused_area         Float?
+  high_water_area     Float?
+  medium_water_area   Float?
+  irrigation_sources  String?
+  additional_remarks  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 21: Preferred Cultivation Mode
+model cultivation_mode {
+  mode_id             Int        @id @default(autoincrement())
+  household_id        String
+  preferred_method    String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 22: Traditional Farming
+model traditional_farming {
+  farming_id          Int        @id @default(autoincrement())
+  household_id        String
+  practices_traditional Boolean?
+  traditional_crop_details String?
+  last_practiced_season String?
+  interest_resume     Boolean?
+  resume_mode         String?
+  additional_support  String?
+  revival_budget      Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 23: Livestock and Poultry
+model livestock_details {
+  livestock_id        Int        @id @default(autoincrement())
+  household_id        String
+  animal_category     String?
+  animal_count        Int?
+  breed_type          String?
+  estimated_income    Float?
+  additional_support  String?
+  interest_training   Boolean?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 24: Food Consumption
+model food_consumption {
+  consumption_id      Int        @id @default(autoincrement())
+  household_id        String
+  food_item           String?
+  monthly_quantity    Float?
+  unit                String?
+  produced_at_home    Boolean?
+  source_location     String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 25: Cash Crops
+model cash_crops {
+  crop_id             Int        @id @default(autoincrement())
+  household_id        String
+  crop_name           String?
+  number              Int?
+  older_than_3_years  Boolean?
+  annual_income       Float?
+  additional_details  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 26: Forest Resource Collection
+model forest_resources {
+  resource_id         Int        @id @default(autoincrement())
+  household_id        String
+  product_name        String?
+  collection_days     Int?
+  quantity_kg         Float?
+  selling_price_per_kg Float?
+  selling_place       String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 27: Social Issues
+model social_issues {
+  issue_id            Int        @id @default(autoincrement())
+  household_id        String
+  issue_type          String?
+  details             String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 28: Wage Employment Schemes
+model wage_employment {
+  employment_id       Int        @id @default(autoincrement())
+  household_id        String
+  workdays_2023_24    Int?
+  distance_to_job     Int?
+  payment_mode        String?
+  work_availability   String?
+  work_area_sector    String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 29: New Livelihood Opportunities
+model livelihood_opportunities {
+  opportunity_id      Int        @id @default(autoincrement())
+  household_id        String
+  member_name         String?
+  age                 Int?
+  work_skill_interest String?
+  support_required    String?
+  expected_income     Float?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 30: Arts and Sports Interest
+model arts_sports {
+  arts_sport_id       Int        @id @default(autoincrement())
+  household_id        String
+  member_name         String?
+  age                 Int?
+  area_of_interest    String?
+  additional_details  String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 31: Public Institutions Access
+model public_institutions {
+  institution_id      Int        @id @default(autoincrement())
+  household_id        String
+  institution_name    String?
+  distance_from_home  Int?
+  services_availed    String?
+  support_received    String?
+  satisfaction_level  Int?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 32: Phone Connectivity
+model phone_connectivity {
+  phone_id            Int        @id @default(autoincrement())
+  household_id        String
+  has_phone           Boolean?
+  mobile_numbers      String?
+  landline_number     String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// SRS Section 33: Additional Information
+model additional_info {
+  info_id             Int        @id @default(autoincrement())
+  household_id        String
+  benefits_received   String?
+  additional_remarks  String?
+  survey_comments     String?
+  
+  households          households @relation(fields: [household_id], references: [household_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+// Administrative Models
+model audit_logs {
+  id           Int      @id @default(autoincrement())
+  timestamp    DateTime @default(now())
+  action_type  String
+  method       String
+  url          String
+  user_id      String?
+  user_phone   String?
+  ip           String?
+  user_agent   String?
+  request_body String?
+  query_params String?
+  status_code  Int?
+  // Optionally, add more fields for device fingerprint, etc.
+  users        users?   @relation(fields: [user_id], references: [user_id], onDelete: SetNull)
+}
+
+model blocks {
+  block_id                  Int                         @id @default(autoincrement())
+  name                      String
+  district_id               Int
+  created_at                DateTime?                   @default(now())
+  updated_at                DateTime?                   @default(now())
+  districts                 districts                   @relation(fields: [district_id], references: [district_id], onDelete: NoAction, onUpdate: NoAction)
+  panchayats                panchayats[]
+  user_location_assignments user_location_assignments[]
+}
+
+model districts {
+  district_id               Int                         @id @default(autoincrement())
+  name                      String                      @unique
+  created_at                DateTime?                   @default(now())
+  updated_at                DateTime?                   @default(now())
+  blocks                    blocks[]
+  user_location_assignments user_location_assignments[]
+}
+
+model hamlets {
+  hamlet_id                 Int                         @id @default(autoincrement())
+  name                      String
+  panchayat_id              Int
+  created_at                DateTime?                   @default(now())
+  updated_at                DateTime?                   @default(now())
+  panchayats                panchayats                  @relation(fields: [panchayat_id], references: [panchayat_id], onDelete: NoAction, onUpdate: NoAction)
+  households                households[]
+  user_location_assignments user_location_assignments[]
+}
+
+model panchayats {
+  panchayat_id              Int                         @id @default(autoincrement())
+  name                      String
+  block_id                  Int
+  created_at                DateTime?                   @default(now())
+  updated_at                DateTime?                   @default(now())
+  blocks                    blocks                      @relation(fields: [block_id], references: [block_id], onDelete: NoAction, onUpdate: NoAction)
+  hamlets                   hamlets[]
+  user_location_assignments user_location_assignments[]
+}
+
+model roles {
+  role_id     Int     @id @default(autoincrement())
+  role_name   String  @unique
+  description String?
+  users       users[]
+}
+
+model sync_sessions {
+  session_id    String   @id @default(uuid())
+  user_id       String
+  device_id     String?
+  sync_started  DateTime @default(now())
+  sync_completed DateTime?
+  records_synced Int?     @default(0)
+  status        String
+  error_details String?
+  users         users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_location_assignments {
+  assignment_id Int      @id @default(autoincrement())
+  user_id       String
+  district_id   Int?
+  block_id      Int?
+  panchayat_id  Int?
+  hamlet_id     Int?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+  districts     districts? @relation(fields: [district_id], references: [district_id], onDelete: NoAction, onUpdate: NoAction)
+  blocks        blocks? @relation(fields: [block_id], references: [block_id], onDelete: NoAction, onUpdate: NoAction)
+  panchayats    panchayats? @relation(fields: [panchayat_id], references: [panchayat_id], onDelete: NoAction, onUpdate: NoAction)
+  hamlets       hamlets? @relation(fields: [hamlet_id], references: [hamlet_id], onDelete: NoAction, onUpdate: NoAction)
+  users         users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  user_id                   String                      @id @default(uuid())
+  full_name                 String
+  phone_number              String                      @unique
+  password_hash             String
+  role_id                   Int
+  is_active                 Boolean?                    @default(true)
+  last_login                DateTime?
+  otp                       String?
+  otp_expires_at            DateTime?
+  created_at                DateTime?                   @default(now())
+  updated_at                DateTime?                   @default(now())
+  audit_logs                audit_logs[]
+  households                households[]
+  sync_sessions             sync_sessions[]
+  user_location_assignments user_location_assignments[]
+  roles                     roles                       @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction)
+}
