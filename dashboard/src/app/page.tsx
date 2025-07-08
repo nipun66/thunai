@@ -29,6 +29,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import HouseholdDetailView from '../components/HouseholdDetailView';
 import { dashboardApiService } from '../services/api';
+import { UserContext, useUser } from './UserContext';
 
 // User roles based on SRS specifications
 const userRoles: UserRole[] = [
@@ -577,10 +578,6 @@ function renderIcon(IconComponent: any, props: any, emoji: string) {
   return <span>{emoji}</span>;
 }
 
-// UserContext for role-based access
-export const UserContext = React.createContext<any>(null);
-export const useUser = () => React.useContext(UserContext);
-
 export default function Dashboard() {
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1088,52 +1085,50 @@ export default function Dashboard() {
   }
 
   return (
-    <UserContext.Provider value={user}>
-      <Box minHeight="100vh" bgcolor="#f5f7fa">
-        {/* Professional Header */}
-        <AppBar position="static" color="primary" elevation={2}>
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box>
-              <Typography variant="h6" fontWeight={700} color="inherit">THUNAI Dashboard</Typography>
-              <Typography variant="caption" color="inherit">District Administration Palakkad - Household Survey System</Typography>
-            </Box>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Typography variant="subtitle2" color="inherit">Welcome, User</Typography>
-              <IconButton color="inherit" onClick={handleLogout} title="Logout">
-                <LogoutIcon />
-              </IconButton>
-            </Box>
-          </Toolbar>
-        </AppBar>
+    <Box minHeight="100vh" bgcolor="#f5f7fa">
+      {/* Professional Header */}
+      <AppBar position="static" color="primary" elevation={2}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant="h6" fontWeight={700} color="inherit">THUNAI Dashboard</Typography>
+            <Typography variant="caption" color="inherit">District Administration Palakkad - Household Survey System</Typography>
+          </Box>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Typography variant="subtitle2" color="inherit">Welcome, User</Typography>
+            <IconButton color="inherit" onClick={handleLogout} title="Logout">
+              <LogoutIcon />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-        {/* Navigation Tabs */}
-        <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={activeTab}
-            onChange={(_e, v) => setActiveTab(v)}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-          >
-            <Tab label="Overview" value="overview" icon={<BarChartIcon />} iconPosition="start" />
-            <Tab label="Household Data" value="data" icon={<HomeWorkIcon />} iconPosition="start" />
-            <Tab label="Reports" value="reports" icon={<GroupsIcon />} iconPosition="start" />
-          </Tabs>
-        </Box>
-
-        {/* Main Content */}
-        <Box sx={{ maxWidth: 1300, mx: 'auto', p: { xs: 1, md: 3 } }}>
-          {renderCurrentTab()}
-        </Box>
-
-        {/* Household Detail Modal */}
-        {selectedHousehold && (
-          <HouseholdDetailView 
-            household={selectedHousehold} 
-            onClose={handleCloseDetails} 
-          />
-        )}
+      {/* Navigation Tabs */}
+      <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={activeTab}
+          onChange={(_e, v) => setActiveTab(v)}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+        >
+          <Tab label="Overview" value="overview" icon={<BarChartIcon />} iconPosition="start" />
+          <Tab label="Household Data" value="data" icon={<HomeWorkIcon />} iconPosition="start" />
+          <Tab label="Reports" value="reports" icon={<GroupsIcon />} iconPosition="start" />
+        </Tabs>
       </Box>
-    </UserContext.Provider>
+
+      {/* Main Content */}
+      <Box sx={{ maxWidth: 1300, mx: 'auto', p: { xs: 1, md: 3 } }}>
+        {renderCurrentTab()}
+      </Box>
+
+      {/* Household Detail Modal */}
+      {selectedHousehold && (
+        <HouseholdDetailView 
+          household={selectedHousehold} 
+          onClose={handleCloseDetails} 
+        />
+      )}
+    </Box>
   );
 }
