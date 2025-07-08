@@ -95,6 +95,7 @@ const createDefaultUsers = async () => {
 createDefaultUsers();
 
 export const register = async (req: Request, res: Response): Promise<void> => {
+  (req as any).auditActionType = 'REGISTER';
   try {
     const { phone_number, password, role_id, full_name } = req.body;
     
@@ -163,6 +164,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
+  (req as any).auditActionType = 'LOGIN';
   try {
     const { phone_number, password } = req.body;
     

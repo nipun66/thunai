@@ -29,7 +29,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import HouseholdDetailView from '../components/HouseholdDetailView';
 import { dashboardApiService } from '../services/api';
-import React, { createContext, useContext } from 'react';
 
 // User roles based on SRS specifications
 const userRoles: UserRole[] = [
@@ -579,8 +578,8 @@ function renderIcon(IconComponent: any, props: any, emoji: string) {
 }
 
 // UserContext for role-based access
-export const UserContext = createContext<any>(null);
-export const useUser = () => useContext(UserContext);
+export const UserContext = React.createContext<any>(null);
+export const useUser = () => React.useContext(UserContext);
 
 export default function Dashboard() {
   // Authentication state
