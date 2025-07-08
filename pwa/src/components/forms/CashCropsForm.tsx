@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type CashCrop = {
   cropName: string;
@@ -8,10 +9,17 @@ type CashCrop = {
   additionalDetails: string;
 };
 
+type HouseholdData = {
+  cashCrops?: CashCrop[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type CashCropError = Partial<Record<keyof CashCrop, string>>;
 
 const defaultCrop: CashCrop = {
   cropName: '',
@@ -22,23 +30,37 @@ const defaultCrop: CashCrop = {
 };
 
 const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
-  const validate = (field: string, value: any) => {
+  const [errors, setErrors] = useState({
+    cropName: '', cropNumber: '', olderThan3Years: '', annualIncome: '', additionalDetails: ''
+  });
+  const validate = (field: keyof CashCrop, value: any) => {
     let error = '';
-    if (field === 'cropType' && !value) error = 'Crop type is required';
-    if (field === 'area' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid area';
-    if (field === 'annualIncome' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid income';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'cropName') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'number') error = FormValidator.validateNumber(value, { min: 0, max: 10000, integer: true }) || '';
+    if (field === 'olderThan3Years') error = FormValidator.validateBoolean(value) || '';
+    if (field === 'annualIncome') error = FormValidator.validateNumber(value, { min: 0, max: 1000000, integer: true }) || '';
+    if (field === 'additionalDetails') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
+
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newCrop) as (keyof CashCrop)[]).forEach((field) => {
+      if (!validate(field, newCrop[field])) valid = false;
+    });
+    return valid;
+  };
+
   const [newCrop, setNewCrop] = useState<CashCrop>(defaultCrop);
   const safeData = householdData || {};
   const cashCrops: CashCrop[] = safeData.cashCrops || [];
 
   const addCrop = () => {
-    if (!newCrop.cropName) return;
+    if (!validateAll()) return;
     onChange('cashCrops', [...cashCrops, newCrop]);
     setNewCrop(defaultCrop);
+    setErrors({ cropName: '', cropNumber: '', olderThan3Years: '', annualIncome: '', additionalDetails: '' });
   };
 
   return (
@@ -55,6 +77,7 @@ const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
               onChange={(e) => setNewCrop(prev => ({ ...prev, cropName: e.target.value }))}
               placeholder="Enter crop name"
             />
+            {Boolean(errors.cropName) && <p className="error-message">{errors.cropName}</p>}
           </div>
           <div className="form-group">
             <label>Number</label>
@@ -65,6 +88,7 @@ const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
               placeholder="Enter number"
               min="0"
             />
+            {Boolean(errors.cropNumber) && <p className="error-message">{errors.cropNumber}</p>}
           </div>
           <div className="form-group">
             <label>Are any crops older than 3 years?</label>
@@ -73,6 +97,7 @@ const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
               checked={newCrop.olderThan3Years}
               onChange={(e) => setNewCrop(prev => ({ ...prev, olderThan3Years: e.target.checked }))}
             />
+            {Boolean(errors.olderThan3Years) && <p className="error-message">{errors.olderThan3Years}</p>}
           </div>
           <div className="form-group">
             <label>Income Received (Annually)</label>
@@ -83,6 +108,7 @@ const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
               placeholder="Enter annual income"
               min="0"
             />
+            {Boolean(errors.annualIncome) && <p className="error-message">{errors.annualIncome}</p>}
           </div>
           <div className="form-group full-width">
             <label>Additional Details</label>
@@ -91,6 +117,7 @@ const CashCropsForm: React.FC<Props> = ({ householdData, onChange }) => {
               onChange={(e) => setNewCrop(prev => ({ ...prev, additionalDetails: e.target.value }))}
               placeholder="Any additional details"
             />
+            {Boolean(errors.additionalDetails) && <p className="error-message">{errors.additionalDetails}</p>}
           </div>
         </div>
         <button type="button" onClick={addCrop} className="add-btn">

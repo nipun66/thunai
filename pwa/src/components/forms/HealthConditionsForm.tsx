@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type HealthCondition = {
   memberName: string;
@@ -8,8 +9,12 @@ type HealthCondition = {
   estimatedBudget: number;
 };
 
+type HouseholdData = {
+  healthConditions?: HealthCondition[];
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
 
@@ -23,11 +28,25 @@ const defaultCondition: HealthCondition = {
 
 const HealthConditionsForm: React.FC<Props> = ({ householdData, onChange }) => {
   const [newCondition, setNewCondition] = useState<HealthCondition>(defaultCondition);
+  const [errors, setErrors] = useState({
+    memberName: '', healthCondition: '', placeOfTreatment: '', additionalDetails: '', estimatedBudget: ''
+  });
 
   const addCondition = () => {
     if (!newCondition.memberName || !newCondition.healthCondition) return;
     onChange('healthConditions', [...(householdData.healthConditions || []), newCondition]);
     setNewCondition(defaultCondition);
+  };
+
+  const validate = (field: keyof HealthCondition, value: any) => {
+    let error = '';
+    if (field === 'memberName') error = FormValidator.validateName(FormValidator.sanitize(value)) || '';
+    if (field === 'healthCondition') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'placeOfTreatment') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'additionalDetails') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    if (field === 'estimatedBudget') error = FormValidator.validateNumber(value, { min: 0, max: 1000000, integer: true }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
+    return error === '';
   };
 
   return (
@@ -41,45 +60,70 @@ const HealthConditionsForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newCondition.memberName}
-              onChange={(e) => setNewCondition(prev => ({ ...prev, memberName: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewCondition(prev => ({ ...prev, memberName: value }));
+                validate('memberName', value);
+              }}
               placeholder="Enter member name"
             />
+            {Boolean(errors.memberName) && <p className="error-text">{errors.memberName}</p>}
           </div>
           <div className="form-group">
             <label>Health Condition *</label>
             <input
               type="text"
               value={newCondition.healthCondition}
-              onChange={(e) => setNewCondition(prev => ({ ...prev, healthCondition: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewCondition(prev => ({ ...prev, healthCondition: value }));
+                validate('healthCondition', value);
+              }}
               placeholder="Describe health condition"
             />
+            {Boolean(errors.healthCondition) && <p className="error-text">{errors.healthCondition}</p>}
           </div>
           <div className="form-group">
             <label>Place of Treatment</label>
             <input
               type="text"
               value={newCondition.placeOfTreatment}
-              onChange={(e) => setNewCondition(prev => ({ ...prev, placeOfTreatment: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewCondition(prev => ({ ...prev, placeOfTreatment: value }));
+                validate('placeOfTreatment', value);
+              }}
               placeholder="Enter hospital or treatment center"
             />
+            {Boolean(errors.placeOfTreatment) && <p className="error-text">{errors.placeOfTreatment}</p>}
           </div>
           <div className="form-group full-width">
             <label>Additional Details</label>
             <textarea
               value={newCondition.additionalDetails}
-              onChange={(e) => setNewCondition(prev => ({ ...prev, additionalDetails: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewCondition(prev => ({ ...prev, additionalDetails: value }));
+                validate('additionalDetails', value);
+              }}
               placeholder="Any additional notes"
             />
+            {Boolean(errors.additionalDetails) && <p className="error-text">{errors.additionalDetails}</p>}
           </div>
           <div className="form-group">
             <label>Estimated Budget (if applicable)</label>
             <input
               type="number"
               value={newCondition.estimatedBudget}
-              onChange={(e) => setNewCondition(prev => ({ ...prev, estimatedBudget: parseInt(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                setNewCondition(prev => ({ ...prev, estimatedBudget: value }));
+                validate('estimatedBudget', value);
+              }}
               placeholder="Enter estimated budget"
               min="0"
             />
+            {Boolean(errors.estimatedBudget) && <p className="error-text">{errors.estimatedBudget}</p>}
           </div>
         </div>
         <button type="button" onClick={addCondition} className="add-btn">

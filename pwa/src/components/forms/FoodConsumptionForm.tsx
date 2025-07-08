@@ -8,10 +8,17 @@ type FoodConsumption = {
   sourceLocation: string;
 };
 
+type HouseholdData = {
+  foodConsumption?: FoodConsumption[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type FoodConsumptionError = Partial<Record<keyof FoodConsumption, string>>;
 
 const defaultFood: FoodConsumption = {
   foodItem: '',
@@ -22,24 +29,36 @@ const defaultFood: FoodConsumption = {
 };
 
 const FoodConsumptionForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FoodConsumptionError>({});
   const [newFood, setNewFood] = useState<FoodConsumption>(defaultFood);
   const foodConsumption: FoodConsumption[] = householdData.foodConsumption || [];
-  const validate = (field: string, value: any) => {
+
+  const unitOptions = ['kg', 'g', 'litre', 'ml', 'dozen', 'packet', 'piece'];
+
+  const validate = (field: keyof FoodConsumption, value: any) => {
     let error = '';
-    if (field === 'foodItem' && !value) error = 'Food item is required';
+    if (field === 'foodItem' && (!value || !/^[a-zA-Z ]+$/.test(value))) error = 'Food item is required and must be letters only';
     if (field === 'monthlyQuantity' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid monthly quantity';
-    if (field === 'unit' && !value) error = 'Measurement unit is required';
+    if (field === 'unit' && (!value || !unitOptions.includes(value))) error = 'Measurement unit is required';
     if (field === 'producedAtHome' && typeof value !== 'boolean') error = 'Produced at home status is required';
     if (field === 'sourceLocation' && !value) error = 'Source location is required';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
 
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newFood) as (keyof FoodConsumption)[]).forEach((field) => {
+      if (!validate(field, newFood[field])) valid = false;
+    });
+    return valid;
+  };
+
   const addFood = () => {
-    if (!newFood.foodItem) return;
+    if (!validateAll()) return;
     onChange('foodConsumption', [...foodConsumption, newFood]);
     setNewFood(defaultFood);
+    setErrors({});
   };
 
   return (
@@ -53,46 +72,68 @@ const FoodConsumptionForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newFood.foodItem}
-              onChange={(e) => setNewFood(prev => ({ ...prev, foodItem: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewFood(prev => ({ ...prev, foodItem: value }));
+                validate('foodItem', value);
+              }}
               placeholder="E.g., Rice, Vegetables, Milk, etc."
             />
-            {errors.foodItem && <span className="error">{errors.foodItem}</span>}
+            {Boolean(errors.foodItem) && <span className="error">{errors.foodItem}</span>}
           </div>
           <div className="form-group">
             <label>Monthly Quantity Consumed</label>
             <input
               type="number"
               value={newFood.monthlyQuantity}
-              onChange={(e) => setNewFood(prev => ({ ...prev, monthlyQuantity: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                setNewFood(prev => ({ ...prev, monthlyQuantity: value }));
+                validate('monthlyQuantity', value);
+              }}
               placeholder="Enter quantity"
               min="0"
             />
-            {errors.monthlyQuantity && <span className="error">{errors.monthlyQuantity}</span>}
+            {Boolean(errors.monthlyQuantity) && <span className="error">{errors.monthlyQuantity}</span>}
           </div>
           <div className="form-group">
             <label>Measurement Unit</label>
-            <input
-              type="text"
+            <select
               value={newFood.unit}
-              onChange={(e) => setNewFood(prev => ({ ...prev, unit: e.target.value }))}
-              placeholder="E.g., kg, litre, dozen, etc."
-            />
-            {errors.unit && <span className="error">{errors.unit}</span>}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewFood(prev => ({ ...prev, unit: value }));
+                validate('unit', value);
+              }}
+              required
+            >
+              <option value="">Select Unit</option>
+              {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+            {Boolean(errors.unit) && <span className="error">{errors.unit}</span>}
           </div>
           <div className="form-group">
             <label>Is This Produced at Home?</label>
             <input
               type="checkbox"
               checked={newFood.producedAtHome}
-              onChange={(e) => setNewFood(prev => ({ ...prev, producedAtHome: e.target.checked }))}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setNewFood(prev => ({ ...prev, producedAtHome: checked }));
+                validate('producedAtHome', checked);
+              }}
             />
-            {errors.producedAtHome && <span className="error">{errors.producedAtHome}</span>}
+            {Boolean(errors.producedAtHome) && <span className="error">{errors.producedAtHome}</span>}
           </div>
           <div className="form-group">
             <label>If Not, Where Is It Sourced From?</label>
             <select
               value={newFood.sourceLocation}
-              onChange={(e) => setNewFood(prev => ({ ...prev, sourceLocation: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewFood(prev => ({ ...prev, sourceLocation: value }));
+                validate('sourceLocation', value);
+              }}
             >
               <option value="">Select Source</option>
               <option value="Market">Market</option>
@@ -101,7 +142,7 @@ const FoodConsumptionForm: React.FC<Props> = ({ householdData, onChange }) => {
               <option value="Local Vendor">Local Vendor</option>
               <option value="Others">Others</option>
             </select>
-            {errors.sourceLocation && <span className="error">{errors.sourceLocation}</span>}
+            {Boolean(errors.sourceLocation) && <span className="error">{errors.sourceLocation}</span>}
           </div>
         </div>
         <button type="button" onClick={addFood} className="add-btn">

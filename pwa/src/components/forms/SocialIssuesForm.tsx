@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type SocialIssue = {
   issueType: string;
   details: string;
 };
 
+type HouseholdData = {
+  socialIssues?: SocialIssue[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type SocialIssueError = Partial<Record<keyof SocialIssue, string>>;
 
 const defaultIssue: SocialIssue = {
   issueType: '',
@@ -17,22 +25,33 @@ const defaultIssue: SocialIssue = {
 
 const SocialIssuesForm: React.FC<Props> = ({ householdData, onChange }) => {
   const [newIssue, setNewIssue] = useState<SocialIssue>(defaultIssue);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState({
+    issueType: '', details: ''
+  });
   const safeData = householdData || {};
   const socialIssues: SocialIssue[] = safeData.socialIssues || [];
 
-  const addIssue = () => {
-    if (!newIssue.issueType) return;
-    onChange('socialIssues', [...socialIssues, newIssue]);
-    setNewIssue(defaultIssue);
+  const validate = (field: keyof SocialIssue, value: any) => {
+    let error = '';
+    if (field === 'issueType') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'details') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
+    return error === '';
   };
 
-  const validate = (field: string, value: any) => {
-    let error = '';
-    if (field === 'issueType' && !value) error = 'Issue type is required';
-    if (field === 'affectedCount' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of affected';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
-    return error === '';
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newIssue) as (keyof SocialIssue)[]).forEach((field) => {
+      if (!validate(field, newIssue[field])) valid = false;
+    });
+    return valid;
+  };
+
+  const addIssue = () => {
+    if (!validateAll()) return;
+    onChange('socialIssues', [...socialIssues, newIssue]);
+    setNewIssue(defaultIssue);
+    setErrors({ issueType: '', details: '' });
   };
 
   return (
@@ -46,18 +65,19 @@ const SocialIssuesForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newIssue.issueType}
-              onChange={(e) => setNewIssue(prev => ({ ...prev, issueType: e.target.value }))}
+              onChange={(e) => { setNewIssue(prev => ({ ...prev, issueType: e.target.value })); validate('issueType', e.target.value); }}
               placeholder="E.g., Alcoholism, Domestic Violence, etc."
             />
-            {errors.issueType && <span className="error">{errors.issueType}</span>}
+            {Boolean(errors.issueType) && <span className="error">{errors.issueType}</span>}
           </div>
           <div className="form-group full-width">
             <label>Additional Details</label>
             <textarea
               value={newIssue.details}
-              onChange={(e) => setNewIssue(prev => ({ ...prev, details: e.target.value }))}
+              onChange={(e) => { setNewIssue(prev => ({ ...prev, details: e.target.value })); validate('details', e.target.value); }}
               placeholder="Incident frequency, affected individuals, etc."
             />
+            {Boolean(errors.details) && <span className="error">{errors.details}</span>}
           </div>
         </div>
         <button type="button" onClick={addIssue} className="add-btn">

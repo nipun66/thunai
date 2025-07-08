@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type PublicInstitution = {
   institutionName: string;
@@ -8,8 +9,14 @@ type PublicInstitution = {
   satisfactionLevel: number;
 };
 
+type PublicInstitutionError = Partial<Record<keyof PublicInstitution, string>>;
+
+type HouseholdData = {
+  publicInstitutions?: PublicInstitution[];
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
 
@@ -23,45 +30,40 @@ const defaultInstitution: PublicInstitution = {
 
 const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) => {
   const [newInstitution, setNewInstitution] = useState<PublicInstitution>(defaultInstitution);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState({
+    institutionName: '', distanceFromHome: '', servicesAvailed: '', supportReceived: '', satisfactionLevel: ''
+  });
 
-  const validate = (field: string, value: any) => {
+  const safeData = householdData || {};
+  const publicInstitutions: PublicInstitution[] = safeData.publicInstitutions || [];
+
+  const validate = (field: keyof PublicInstitution, value: any) => {
     let error = '';
-    if (field === 'institutionName' && !value) error = 'Institution name is required';
-    if (field === 'distanceFromHome' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid distance';
-    if (field === 'servicesAvailed' && value.length === 0) error = 'At least one service must be selected';
-    if (field === 'supportReceived' && !value) error = 'Support received is required';
-    if (field === 'satisfactionLevel' && (value === '' || isNaN(value) || value < 0 || value > 4)) error = 'Enter a valid satisfaction level (0-4)';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'institutionName') error = FormValidator.validateName(FormValidator.sanitize(value)) || '';
+    if (field === 'distanceFromHome') error = FormValidator.validateNumber(value, { min: 0, max: 100000, integer: false }) || '';
+    if (field === 'servicesAvailed') error = FormValidator.validateMultiSelect(value) || '';
+    if (field === 'supportReceived') error = FormValidator.validateText(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    if (field === 'satisfactionLevel') error = FormValidator.validateDropdown(value) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
 
-  const addInstitution = () => {
-    if (!newInstitution.institutionName) {
-      setErrors(prev => ({ ...prev, institutionName: 'Institution name is required' }));
-      return;
-    }
-    if (isNaN(newInstitution.distanceFromHome) || newInstitution.distanceFromHome < 0) {
-      setErrors(prev => ({ ...prev, distanceFromHome: 'Enter a valid distance' }));
-      return;
-    }
-    if (newInstitution.servicesAvailed.length === 0) {
-      setErrors(prev => ({ ...prev, servicesAvailed: 'At least one service must be selected' }));
-      return;
-    }
-    if (!newInstitution.supportReceived) {
-      setErrors(prev => ({ ...prev, supportReceived: 'Support received is required' }));
-      return;
-    }
-    if (isNaN(newInstitution.satisfactionLevel) || newInstitution.satisfactionLevel < 0 || newInstitution.satisfactionLevel > 4) {
-      setErrors(prev => ({ ...prev, satisfactionLevel: 'Enter a valid satisfaction level (0-4)' }));
-      return;
-    }
-
-    onChange('publicInstitutions', [...(householdData.publicInstitutions || []), newInstitution]);
-    setNewInstitution(defaultInstitution);
-    setErrors({}); // Clear errors on successful addition
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newInstitution) as (keyof PublicInstitution)[]).forEach((field) => {
+      if (!validate(field, newInstitution[field])) valid = false;
+    });
+    return valid;
   };
+
+  const addInstitution = () => {
+    if (!validateAll()) return;
+    onChange('publicInstitutions', [...publicInstitutions, newInstitution]);
+    setNewInstitution(defaultInstitution);
+    setErrors(resetErrors);
+  };
+
+  const resetErrors = { institutionName: '', distanceFromHome: '', servicesAvailed: '', supportReceived: '', satisfactionLevel: '' };
 
   return (
     <div className="form-section">
@@ -81,7 +83,7 @@ const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) =>
               onBlur={e => validate('institutionName', e.target.value)}
               placeholder="E.g., Gram Panchayat, PHC, etc."
             />
-            {errors.institutionName && <span className="error">{errors.institutionName}</span>}
+            {Boolean(errors.institutionName) && <span className="error">{errors.institutionName}</span>}
           </div>
           <div className="form-group">
             <label>Distance from Home</label>
@@ -96,7 +98,7 @@ const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) =>
               placeholder="Enter distance (km or meters)"
               min="0"
             />
-            {errors.distanceFromHome && <span className="error">{errors.distanceFromHome}</span>}
+            {Boolean(errors.distanceFromHome) && <span className="error">{errors.distanceFromHome}</span>}
           </div>
           <div className="form-group">
             <label>Services Availed</label>
@@ -117,7 +119,7 @@ const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) =>
               <option value="Loans">Loans</option>
               <option value="Others">Others</option>
             </select>
-            {errors.servicesAvailed && <span className="error">{errors.servicesAvailed}</span>}
+            {Boolean(errors.servicesAvailed) && <span className="error">{errors.servicesAvailed}</span>}
           </div>
           <div className="form-group full-width">
             <label>Support Received</label>
@@ -131,7 +133,7 @@ const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) =>
               onBlur={e => validate('supportReceived', e.target.value)}
               placeholder="E.g., free medicines, seedlings, etc."
             />
-            {errors.supportReceived && <span className="error">{errors.supportReceived}</span>}
+            {Boolean(errors.supportReceived) && <span className="error">{errors.supportReceived}</span>}
           </div>
           <div className="form-group">
             <label>Satisfaction Level (0-4)</label>
@@ -149,18 +151,18 @@ const PublicInstitutionsForm: React.FC<Props> = ({ householdData, onChange }) =>
               <option value={3}>3 – Satisfied</option>
               <option value={4}>4 – Very Satisfied</option>
             </select>
-            {errors.satisfactionLevel && <span className="error">{errors.satisfactionLevel}</span>}
+            {Boolean(errors.satisfactionLevel) && <span className="error">{errors.satisfactionLevel}</span>}
           </div>
         </div>
         <button type="button" onClick={addInstitution} className="add-btn">
           ➕ Add Public Institution
         </button>
       </div>
-      {householdData.publicInstitutions && householdData.publicInstitutions.length > 0 && (
+      {publicInstitutions.length > 0 && (
         <div className="institutions-list">
-          <h3>Added Public Institutions ({householdData.publicInstitutions.length})</h3>
+          <h3>Added Public Institutions ({publicInstitutions.length})</h3>
           <div className="institutions-grid">
-            {householdData.publicInstitutions.map((inst: PublicInstitution, idx: number) => (
+            {publicInstitutions.map((inst: PublicInstitution, idx: number) => (
               <div key={idx} className="institution-card">
                 <h4>{inst.institutionName}</h4>
                 <p><strong>Distance:</strong> {inst.distanceFromHome}</p>

@@ -1,19 +1,38 @@
 import React, { useState } from 'react';
 
-interface Props {
-  householdData: any;
+type HealthError = {
+  healthIssue?: string;
+  affectedCount?: string;
+  treatmentReceived?: string;
+};
+
+type HealthData = {
+  healthIssue: string;
+  affectedCount: number;
+  treatmentReceived: string;
+};
+
+type Props = {
+  householdData: HealthData;
   onChange: (field: string, value: any) => void;
-}
+};
 
 const HealthForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
-  const validate = (field: string, value: any) => {
+  const [errors, setErrors] = useState<HealthError>({});
+  const validate = (field: keyof HealthError, value: any) => {
     let error = '';
     if (field === 'healthIssue' && !value) error = 'Health issue is required';
     if (field === 'affectedCount' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of affected';
     if (field === 'treatmentReceived' && !value) error = 'Treatment received is required';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
+  };
+  const validateAll = () => {
+    let valid = true;
+    (['healthIssue', 'affectedCount', 'treatmentReceived'] as (keyof HealthError)[]).forEach((field) => {
+      if (!validate(field, householdData[field])) valid = false;
+    });
+    return valid;
   };
 
   return (

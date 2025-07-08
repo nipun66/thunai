@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type ChildGroup = {
   organizationName: string;
@@ -7,10 +8,17 @@ type ChildGroup = {
   additionalNotes: string;
 };
 
+type HouseholdData = {
+  childGroups?: ChildGroup[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type ChildGroupError = Partial<Record<keyof ChildGroup, string>>;
 
 const defaultGroup: ChildGroup = {
   organizationName: '',
@@ -20,22 +28,36 @@ const defaultGroup: ChildGroup = {
 };
 
 const ChildGroupsForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
-  const validate = (field: string, value: any) => {
+  const [errors, setErrors] = useState({
+    organizationName: '', childParticipants: '', roleActivity: '', additionalNotes: ''
+  });
+  const validate = (field: keyof ChildGroup, value: any) => {
     let error = '';
-    if (field === 'groupName' && !value) error = 'Group name is required';
-    if (field === 'childrenCount' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of children';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'organizationName') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'childParticipants') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 200 }) || '';
+    if (field === 'roleActivity') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    if (field === 'additionalNotes') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
+
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newGroup) as (keyof ChildGroup)[]).forEach((field) => {
+      if (!validate(field, newGroup[field])) valid = false;
+    });
+    return valid;
+  };
+
   const [newGroup, setNewGroup] = useState<ChildGroup>(defaultGroup);
   const safeData = householdData || {};
   const childGroups: ChildGroup[] = safeData.childGroups || [];
 
   const addGroup = () => {
-    if (!newGroup.organizationName || !newGroup.childParticipants) return;
+    if (!validateAll()) return;
     onChange('childGroups', [...childGroups, newGroup]);
     setNewGroup(defaultGroup);
+    setErrors({ organizationName: '', childParticipants: '', roleActivity: '', additionalNotes: '' });
   };
 
   return (
@@ -49,34 +71,54 @@ const ChildGroupsForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newGroup.organizationName}
-              onChange={(e) => setNewGroup(prev => ({ ...prev, organizationName: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewGroup(prev => ({ ...prev, organizationName: value }));
+                validate('organizationName', value);
+              }}
               placeholder="Enter organization name"
             />
+            {Boolean(errors.organizationName) && <p className="error-message">{errors.organizationName}</p>}
           </div>
           <div className="form-group">
             <label>Name(s) of Child Participant(s) *</label>
             <input
               type="text"
               value={newGroup.childParticipants}
-              onChange={(e) => setNewGroup(prev => ({ ...prev, childParticipants: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewGroup(prev => ({ ...prev, childParticipants: value }));
+                validate('childParticipants', value);
+              }}
               placeholder="Enter child participant names"
             />
+            {Boolean(errors.childParticipants) && <p className="error-message">{errors.childParticipants}</p>}
           </div>
           <div className="form-group full-width">
             <label>Role / Activity</label>
             <textarea
               value={newGroup.roleActivity}
-              onChange={(e) => setNewGroup(prev => ({ ...prev, roleActivity: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewGroup(prev => ({ ...prev, roleActivity: value }));
+                validate('roleActivity', value);
+              }}
               placeholder="Describe role or activity"
             />
+            {Boolean(errors.roleActivity) && <p className="error-message">{errors.roleActivity}</p>}
           </div>
           <div className="form-group full-width">
             <label>Additional Notes</label>
             <textarea
               value={newGroup.additionalNotes}
-              onChange={(e) => setNewGroup(prev => ({ ...prev, additionalNotes: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewGroup(prev => ({ ...prev, additionalNotes: value }));
+                validate('additionalNotes', value);
+              }}
               placeholder="Any additional notes"
             />
+            {Boolean(errors.additionalNotes) && <p className="error-message">{errors.additionalNotes}</p>}
           </div>
         </div>
         <button type="button" onClick={addGroup} className="add-btn">

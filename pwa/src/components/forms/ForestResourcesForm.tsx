@@ -8,8 +8,13 @@ type ForestResource = {
   sellingPlace: string;
 };
 
+type HouseholdData = {
+  forestResources?: ForestResource[];
+  // Add other fields as needed
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
 
@@ -22,24 +27,33 @@ const defaultResource: ForestResource = {
 };
 
 const ForestResourcesForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof ForestResource, string>>>({});
   const safeData = householdData || {};
   const [newResource, setNewResource] = useState<ForestResource>(defaultResource);
-  const validate = (field: string, value: any) => {
+  const validate = (field: keyof ForestResource, value: any) => {
     let error = '';
     if (field === 'productName' && !value) error = 'Product name is required';
     if (field === 'collectionDays' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of days';
     if (field === 'quantityKg' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid quantity in kg';
     if (field === 'sellingPricePerKg' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid selling price per kg';
     if (field === 'sellingPlace' && !value) error = 'Selling place is required';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
 
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newResource) as (keyof ForestResource)[]).forEach((field) => {
+      if (!validate(field, newResource[field])) valid = false;
+    });
+    return valid;
+  };
+
   const addResource = () => {
-    if (!newResource.productName) return;
+    if (!validateAll()) return;
     onChange('forestResources', [...(safeData.forestResources || []), newResource]);
     setNewResource(defaultResource);
+    setErrors({});
   };
 
   return (
@@ -53,53 +67,73 @@ const ForestResourcesForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newResource.productName}
-              onChange={(e) => setNewResource(prev => ({ ...prev, productName: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewResource(prev => ({ ...prev, productName: value }));
+                validate('productName', value);
+              }}
               placeholder="Enter product name"
             />
-            {errors.productName && <span className="error">{errors.productName}</span>}
+            {Boolean(errors.productName) && <span className="error">{errors.productName}</span>}
           </div>
           <div className="form-group">
             <label>Number of Days Collected (in 1 year)</label>
             <input
               type="number"
               value={newResource.collectionDays}
-              onChange={(e) => setNewResource(prev => ({ ...prev, collectionDays: parseInt(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                setNewResource(prev => ({ ...prev, collectionDays: value }));
+                validate('collectionDays', value);
+              }}
               placeholder="Enter days"
               min="0"
             />
-            {errors.collectionDays && <span className="error">{errors.collectionDays}</span>}
+            {Boolean(errors.collectionDays) && <span className="error">{errors.collectionDays}</span>}
           </div>
           <div className="form-group">
             <label>Quantity Collected (kg per year)</label>
             <input
               type="number"
               value={newResource.quantityKg}
-              onChange={(e) => setNewResource(prev => ({ ...prev, quantityKg: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                setNewResource(prev => ({ ...prev, quantityKg: value }));
+                validate('quantityKg', value);
+              }}
               placeholder="Enter quantity in kg"
               min="0"
             />
-            {errors.quantityKg && <span className="error">{errors.quantityKg}</span>}
+            {Boolean(errors.quantityKg) && <span className="error">{errors.quantityKg}</span>}
           </div>
           <div className="form-group">
             <label>Average Selling Price (per kg)</label>
             <input
               type="number"
               value={newResource.sellingPricePerKg}
-              onChange={(e) => setNewResource(prev => ({ ...prev, sellingPricePerKg: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                setNewResource(prev => ({ ...prev, sellingPricePerKg: value }));
+                validate('sellingPricePerKg', value);
+              }}
               placeholder="Enter price in INR"
               min="0"
             />
-            {errors.sellingPricePerKg && <span className="error">{errors.sellingPricePerKg}</span>}
+            {Boolean(errors.sellingPricePerKg) && <span className="error">{errors.sellingPricePerKg}</span>}
           </div>
           <div className="form-group">
             <label>Place/Buyer Where It Is Sold</label>
             <input
               type="text"
               value={newResource.sellingPlace}
-              onChange={(e) => setNewResource(prev => ({ ...prev, sellingPlace: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewResource(prev => ({ ...prev, sellingPlace: value }));
+                validate('sellingPlace', value);
+              }}
               placeholder="E.g., Local market, Tribal cooperative, etc."
             />
-            {errors.sellingPlace && <span className="error">{errors.sellingPlace}</span>}
+            {Boolean(errors.sellingPlace) && <span className="error">{errors.sellingPlace}</span>}
           </div>
         </div>
         <button type="button" onClick={addResource} className="add-btn">

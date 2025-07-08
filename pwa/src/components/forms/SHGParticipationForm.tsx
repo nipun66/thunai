@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type SHGParticipation = {
   memberName: string;
@@ -7,10 +8,17 @@ type SHGParticipation = {
   additionalDetails: string;
 };
 
+type HouseholdData = {
+  shgParticipation?: SHGParticipation[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type SHGParticipationError = Partial<Record<keyof SHGParticipation, string>>;
 
 const defaultSHG: SHGParticipation = {
   memberName: '',
@@ -19,22 +27,40 @@ const defaultSHG: SHGParticipation = {
   additionalDetails: '',
 };
 
+const resetErrors = { memberName: '', groupName: '', yearsMembership: '', additionalDetails: '' };
+
 const SHGParticipationForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
-  const validate = (field: string, value: any) => {
+  const [errors, setErrors] = useState({
+    memberName: '', groupName: '', yearsMembership: '', additionalDetails: ''
+  });
+  const safeData = householdData || {};
+  const shgParticipation: SHGParticipation[] = safeData.shgParticipation || [];
+
+  const validate = (field: keyof SHGParticipation, value: any) => {
     let error = '';
-    if (field === 'memberName' && !value) error = 'Member name is required';
-    if (field === 'groupName' && !value) error = 'Group name is required';
-    if (field === 'yearsMembership' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of years';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'memberName') error = FormValidator.validateName(FormValidator.sanitize(value)) || '';
+    if (field === 'groupName') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'yearsMembership') error = FormValidator.validateNumber(value, { min: 0, max: 100, integer: true }) || '';
+    if (field === 'additionalDetails') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
+
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newSHG) as (keyof SHGParticipation)[]).forEach((field) => {
+      if (!validate(field, newSHG[field])) valid = false;
+    });
+    return valid;
+  };
+
   const [newSHG, setNewSHG] = useState<SHGParticipation>(defaultSHG);
 
   const addSHG = () => {
-    if (!newSHG.memberName || !newSHG.groupName) return;
-    onChange('shgParticipation', [...(householdData.shgParticipation || []), newSHG]);
+    if (!validateAll()) return;
+    onChange('shgParticipation', [...shgParticipation, newSHG]);
     setNewSHG(defaultSHG);
+    setErrors(resetErrors);
   };
 
   return (
@@ -52,7 +78,7 @@ const SHGParticipationForm: React.FC<Props> = ({ householdData, onChange }) => {
               onBlur={e => validate('memberName', e.target.value)}
               placeholder="Enter member name"
             />
-            {errors.memberName && <span className="error">{errors.memberName}</span>}
+            {Boolean(errors.memberName) && <span className="error">{errors.memberName}</span>}
           </div>
           <div className="form-group">
             <label>Name of Group / Organization *</label>
@@ -63,7 +89,7 @@ const SHGParticipationForm: React.FC<Props> = ({ householdData, onChange }) => {
               onBlur={e => validate('groupName', e.target.value)}
               placeholder="Enter group or organization name"
             />
-            {errors.groupName && <span className="error">{errors.groupName}</span>}
+            {Boolean(errors.groupName) && <span className="error">{errors.groupName}</span>}
           </div>
           <div className="form-group">
             <label>Years of Membership</label>
@@ -75,7 +101,7 @@ const SHGParticipationForm: React.FC<Props> = ({ householdData, onChange }) => {
               placeholder="Enter years of membership"
               min="0"
             />
-            {errors.yearsMembership && <span className="error">{errors.yearsMembership}</span>}
+            {Boolean(errors.yearsMembership) && <span className="error">{errors.yearsMembership}</span>}
           </div>
           <div className="form-group full-width">
             <label>Additional Details / Role in Group</label>
@@ -84,17 +110,18 @@ const SHGParticipationForm: React.FC<Props> = ({ householdData, onChange }) => {
               onChange={(e) => setNewSHG(prev => ({ ...prev, additionalDetails: e.target.value }))}
               placeholder="Any additional details or role in group"
             />
+            {Boolean(errors.additionalDetails) && <span className="error">{errors.additionalDetails}</span>}
           </div>
         </div>
         <button type="button" onClick={addSHG} className="add-btn">
           ➕ Add SHG Participation
         </button>
       </div>
-      {householdData.shgParticipation && householdData.shgParticipation.length > 0 && (
+      {shgParticipation && shgParticipation.length > 0 && (
         <div className="shg-list">
-          <h3>Added SHG Participations ({householdData.shgParticipation.length})</h3>
+          <h3>Added SHG Participations ({shgParticipation.length})</h3>
           <div className="shg-grid">
-            {householdData.shgParticipation.map((shg: SHGParticipation, idx: number) => (
+            {shgParticipation.map((shg: SHGParticipation, idx: number) => (
               <div key={idx} className="shg-card">
                 <h4>{shg.memberName}</h4>
                 <p><strong>Group:</strong> {shg.groupName}</p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type ArtsSport = {
   memberName: string;
@@ -7,10 +8,17 @@ type ArtsSport = {
   additionalDetails: string;
 };
 
+type HouseholdData = {
+  artsSports?: ArtsSport[];
+  // ...other fields
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, value: any) => void;
 };
+
+type ArtsSportError = Partial<Record<keyof ArtsSport, string>>;
 
 const defaultArtsSport: ArtsSport = {
   memberName: '',
@@ -20,22 +28,40 @@ const defaultArtsSport: ArtsSport = {
 };
 
 const ArtsSportsForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
-  const validate = (field: string, value: any) => {
+  // Set up error state for all fields in the form, matching the data model
+  // Use FormValidator for all validation in the validate function
+  // For each field, use Boolean(errors.FIELD) for error and errors.FIELD || '...' for helperText
+  // Sanitize all text inputs and enforce SRS requirements
+  const [errors, setErrors] = useState({
+    memberName: '', age: '', areaOfInterest: '', additionalDetails: ''
+  });
+  const validate = (field: keyof ArtsSport, value: any) => {
     let error = '';
-    if (field === 'activityType' && !value) error = 'Activity type is required';
-    if (field === 'participantsCount' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid number of participants';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'memberName') error = FormValidator.validateName(FormValidator.sanitize(value)) || '';
+    if (field === 'age') error = FormValidator.validateNumber(value, { min: 0, max: 120, integer: true }) || '';
+    if (field === 'areaOfInterest') error = FormValidator.validateText(FormValidator.sanitize(value), { minLength: 2, maxLength: 100 }) || '';
+    if (field === 'additionalDetails') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
   };
+
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(newArtsSport) as (keyof ArtsSport)[]).forEach((field) => {
+      if (!validate(field, newArtsSport[field])) valid = false;
+    });
+    return valid;
+  };
+
   const [newArtsSport, setNewArtsSport] = useState<ArtsSport>(defaultArtsSport);
   const safeData = householdData || {};
   const artsSports: ArtsSport[] = safeData.artsSports || [];
 
   const addArtsSport = () => {
-    if (!newArtsSport.memberName || !newArtsSport.areaOfInterest) return;
+    if (!validateAll()) return;
     onChange('artsSports', [...artsSports, newArtsSport]);
     setNewArtsSport(defaultArtsSport);
+    setErrors({ memberName: '', age: '', areaOfInterest: '', additionalDetails: '' });
   };
 
   return (
@@ -49,36 +75,60 @@ const ArtsSportsForm: React.FC<Props> = ({ householdData, onChange }) => {
             <input
               type="text"
               value={newArtsSport.memberName}
-              onChange={(e) => setNewArtsSport(prev => ({ ...prev, memberName: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewArtsSport(prev => ({ ...prev, memberName: value }));
+                validate('memberName', value);
+              }}
               placeholder="Enter member name"
             />
+            {Boolean(errors.memberName) && <p className="error-message">{errors.memberName}</p>}
+            {errors.memberName || 'Enter member name (letters only)'}
           </div>
           <div className="form-group">
             <label>Age</label>
             <input
               type="number"
               value={newArtsSport.age}
-              onChange={(e) => setNewArtsSport(prev => ({ ...prev, age: parseInt(e.target.value) || 0 }))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                setNewArtsSport(prev => ({ ...prev, age: value }));
+                validate('age', value);
+              }}
               placeholder="Enter age"
               min="0"
             />
+            {Boolean(errors.age) && <p className="error-message">{errors.age}</p>}
+            {errors.age || 'Enter a valid age (0-120)'}
           </div>
           <div className="form-group">
             <label>Area of Interest (Art/Sport) *</label>
             <input
               type="text"
               value={newArtsSport.areaOfInterest}
-              onChange={(e) => setNewArtsSport(prev => ({ ...prev, areaOfInterest: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewArtsSport(prev => ({ ...prev, areaOfInterest: value }));
+                validate('areaOfInterest', value);
+              }}
               placeholder="E.g., Dance, Football, Drawing, etc."
             />
+            {Boolean(errors.areaOfInterest) && <p className="error-message">{errors.areaOfInterest}</p>}
+            {errors.areaOfInterest || 'Enter area of interest (2-100 letters)'}
           </div>
           <div className="form-group full-width">
             <label>Additional Details</label>
             <textarea
               value={newArtsSport.additionalDetails}
-              onChange={(e) => setNewArtsSport(prev => ({ ...prev, additionalDetails: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewArtsSport(prev => ({ ...prev, additionalDetails: value }));
+                validate('additionalDetails', value);
+              }}
               placeholder="Participation in events, awards, etc."
             />
+            {Boolean(errors.additionalDetails) && <p className="error-message">{errors.additionalDetails}</p>}
+            {errors.additionalDetails || 'Enter additional details (max 200 characters)'}
           </div>
         </div>
         <button type="button" onClick={addArtsSport} className="add-btn">

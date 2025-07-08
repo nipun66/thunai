@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FormValidator } from './validation';
 
 type WaterSource = {
   hasConservation: boolean;
@@ -13,25 +14,47 @@ type WaterSource = {
   estimatedBudget: number;
 };
 
+type WaterSourceError = Partial<Record<keyof WaterSource, string>>;
+
+type HouseholdData = {
+  waterSources: WaterSource;
+};
+
 type Props = {
-  householdData: any;
+  householdData: HouseholdData;
   onChange: (section: string, field: string, value: any) => void;
 };
 
 const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Required<WaterSourceError>>({
+    hasConservation: '', conservationMethods: '', hasStorageTank: '', sourceType: '', ownership: '', availability: '', quality: '', collectionMethod: '', additionalRemarks: '', estimatedBudget: ''
+  });
+  const safeData = householdData || { waterSources: {} as WaterSource };
+  const waterSources: WaterSource = safeData.waterSources;
 
   // Validation logic
-  const validate = (field: string, value: any) => {
+  const validate = (field: keyof WaterSource, value: any) => {
     let error = '';
-    if (field === 'sourceType' && !value) error = 'Source type is required';
-    if (field === 'ownership' && !value) error = 'Ownership is required';
-    if (field === 'availability' && !value) error = 'Availability is required';
-    if (field === 'quality' && !value) error = 'Quality is required';
-    if (field === 'collectionMethod' && !value) error = 'Collection method is required';
-    if (field === 'estimatedBudget' && (value === '' || isNaN(value) || value < 0)) error = 'Enter a valid estimated budget';
-    setErrors((prev: any) => ({ ...prev, [field]: error }));
+    if (field === 'hasConservation') error = FormValidator.validateBoolean(value) || '';
+    if (field === 'conservationMethods') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    if (field === 'hasStorageTank') error = FormValidator.validateBoolean(value) || '';
+    if (field === 'sourceType') error = FormValidator.validateDropdown(value) || '';
+    if (field === 'ownership') error = FormValidator.validateDropdown(value) || '';
+    if (field === 'availability') error = FormValidator.validateDropdown(value) || '';
+    if (field === 'quality') error = FormValidator.validateDropdown(value) || '';
+    if (field === 'collectionMethod') error = FormValidator.validateDropdown(value) || '';
+    if (field === 'additionalRemarks') error = FormValidator.validateTextarea(FormValidator.sanitize(value), { required: false, minLength: 0, maxLength: 200 }) || '';
+    if (field === 'estimatedBudget') error = FormValidator.validateNumber(value, { min: 0, max: 1000000, integer: true }) || '';
+    setErrors((prev) => ({ ...prev, [field]: error }));
     return error === '';
+  };
+
+  const validateAll = () => {
+    let valid = true;
+    (Object.keys(waterSources) as (keyof WaterSource)[]).forEach((field) => {
+      if (!validate(field, waterSources[field])) valid = false;
+    });
+    return valid;
   };
 
   return (
@@ -45,7 +68,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
               <input
                 type="radio"
                 name="hasConservation"
-                checked={householdData.waterSources.hasConservation}
+                checked={waterSources.hasConservation}
                 onChange={() => onChange('waterSources', 'hasConservation', true)}
               />
               Yes
@@ -54,7 +77,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
               <input
                 type="radio"
                 name="hasConservation"
-                checked={!householdData.waterSources.hasConservation}
+                checked={!waterSources.hasConservation}
                 onChange={() => onChange('waterSources', 'hasConservation', false)}
               />
               No
@@ -64,7 +87,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
         <div className="form-group full-width">
           <label>If Yes, specify methods</label>
           <textarea
-            value={householdData.waterSources.conservationMethods}
+            value={waterSources.conservationMethods}
             onChange={(e) => onChange('waterSources', 'conservationMethods', e.target.value)}
             placeholder="e.g., rainwater harvesting, bunding, etc."
           />
@@ -76,7 +99,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
               <input
                 type="radio"
                 name="hasStorageTank"
-                checked={householdData.waterSources.hasStorageTank}
+                checked={waterSources.hasStorageTank}
                 onChange={() => onChange('waterSources', 'hasStorageTank', true)}
               />
               Yes
@@ -85,7 +108,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
               <input
                 type="radio"
                 name="hasStorageTank"
-                checked={!householdData.waterSources.hasStorageTank}
+                checked={!waterSources.hasStorageTank}
                 onChange={() => onChange('waterSources', 'hasStorageTank', false)}
               />
               No
@@ -95,7 +118,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
         <div className="form-group">
           <label>Type of Water Source</label>
           <select
-            value={householdData.waterSources.sourceType}
+            value={waterSources.sourceType}
             onChange={(e) => {
               onChange('waterSources', 'sourceType', e.target.value);
               validate('sourceType', e.target.value);
@@ -114,12 +137,12 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             <option value="Rainwater">Rainwater</option>
             <option value="Others">Others</option>
           </select>
-          {errors.sourceType && <span className="error">{errors.sourceType}</span>}
+          {Boolean(errors.sourceType) && <span className="error">{errors.sourceType}</span>}
         </div>
         <div className="form-group">
           <label>Ownership of Source</label>
           <select
-            value={householdData.waterSources.ownership}
+            value={waterSources.ownership}
             onChange={(e) => {
               onChange('waterSources', 'ownership', e.target.value);
               validate('ownership', e.target.value);
@@ -132,12 +155,12 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             <option value="Government">Government</option>
             <option value="Forest Department">Forest Department</option>
           </select>
-          {errors.ownership && <span className="error">{errors.ownership}</span>}
+          {Boolean(errors.ownership) && <span className="error">{errors.ownership}</span>}
         </div>
         <div className="form-group">
           <label>Water Availability</label>
           <select
-            value={householdData.waterSources.availability}
+            value={waterSources.availability}
             onChange={(e) => {
               onChange('waterSources', 'availability', e.target.value);
               validate('availability', e.target.value);
@@ -150,12 +173,12 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             <option value="6 months">6 months</option>
             <option value="3 months">3 months</option>
           </select>
-          {errors.availability && <span className="error">{errors.availability}</span>}
+          {Boolean(errors.availability) && <span className="error">{errors.availability}</span>}
         </div>
         <div className="form-group">
           <label>Water Quality</label>
           <select
-            value={householdData.waterSources.quality}
+            value={waterSources.quality}
             onChange={(e) => {
               onChange('waterSources', 'quality', e.target.value);
               validate('quality', e.target.value);
@@ -168,12 +191,12 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             <option value="Has Odor">Has Odor</option>
             <option value="Others">Others</option>
           </select>
-          {errors.quality && <span className="error">{errors.quality}</span>}
+          {Boolean(errors.quality) && <span className="error">{errors.quality}</span>}
         </div>
         <div className="form-group">
           <label>Water Collection Method</label>
           <select
-            value={householdData.waterSources.collectionMethod}
+            value={waterSources.collectionMethod}
             onChange={(e) => {
               onChange('waterSources', 'collectionMethod', e.target.value);
               validate('collectionMethod', e.target.value);
@@ -185,12 +208,12 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             <option value="Collected in containers">Collected in containers</option>
             <option value="Rainwater filtered via cloth">Rainwater filtered via cloth</option>
           </select>
-          {errors.collectionMethod && <span className="error">{errors.collectionMethod}</span>}
+          {Boolean(errors.collectionMethod) && <span className="error">{errors.collectionMethod}</span>}
         </div>
         <div className="form-group full-width">
           <label>Additional Remarks</label>
           <textarea
-            value={householdData.waterSources.additionalRemarks}
+            value={waterSources.additionalRemarks}
             onChange={(e) => onChange('waterSources', 'additionalRemarks', e.target.value)}
             placeholder="Any remarks about water source or management"
           />
@@ -199,7 +222,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
           <label>Estimated Budget (if any)</label>
           <input
             type="number"
-            value={householdData.waterSources.estimatedBudget}
+            value={waterSources.estimatedBudget}
             onChange={e => {
               const val = e.target.value;
               if (/^\d*$/.test(val)) {
@@ -212,7 +235,7 @@ const WaterSourceForm: React.FC<Props> = ({ householdData, onChange }) => {
             min="0"
             required
           />
-          {errors.estimatedBudget && <span className="error">{errors.estimatedBudget}</span>}
+          {Boolean(errors.estimatedBudget) && <span className="error">{errors.estimatedBudget}</span>}
         </div>
       </div>
     </div>

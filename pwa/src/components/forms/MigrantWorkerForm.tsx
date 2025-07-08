@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 
 interface MigrantWorker {
   name: string;
@@ -8,6 +13,8 @@ interface MigrantWorker {
   employmentDuration: number;
   additionalDetails: string;
 }
+
+type MigrantWorkerError = Partial<Record<keyof MigrantWorker, string>>;
 
 interface Props {
   householdData: { migrantWorkers: MigrantWorker[] };
@@ -25,7 +32,7 @@ const emptyWorker: MigrantWorker = {
 
 const MigrantWorkerForm: React.FC<Props> = ({ householdData, onChange }) => {
   const workers = householdData.migrantWorkers || [];
-  const [errors, setErrors] = useState<any[]>([]);
+  const [errors, setErrors] = useState<MigrantWorkerError[]>([]);
 
   const validate = (idx: number, field: keyof MigrantWorker, value: any) => {
     let error = '';
@@ -41,6 +48,14 @@ const MigrantWorkerForm: React.FC<Props> = ({ householdData, onChange }) => {
       return newErrors;
     });
     return error === '';
+  };
+
+  const validateAll = (worker: MigrantWorker) => {
+    let valid = true;
+    (Object.keys(worker) as (keyof MigrantWorker)[]).forEach((field) => {
+      if (!validate(0, field, worker[field])) valid = false;
+    });
+    return valid;
   };
 
   const handleWorkerChange = (idx: number, field: keyof MigrantWorker, value: any) => {
@@ -61,54 +76,86 @@ const MigrantWorkerForm: React.FC<Props> = ({ householdData, onChange }) => {
   };
 
   return (
-    <div>
-      <h2>Migrant Worker Details</h2>
-      {workers.length === 0 && <p>No migrant workers added yet.</p>}
+    <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, maxWidth: 700, mx: 'auto', mt: 3 }}>
+      <Typography variant="h5" fontWeight={700} mb={2} color="primary.main">
+        Migrant Worker Details
+      </Typography>
+      {workers.length === 0 && <Typography color="text.secondary">No migrant workers added yet.</Typography>}
       {workers.map((worker, idx) => (
-        <div key={idx} style={{ border: '1px solid #ccc', padding: 12, marginBottom: 12 }}>
-          <label>
-            Name:
-            <input type="text" value={worker.name} onChange={e => handleWorkerChange(idx, 'name', e.target.value)} onBlur={e => validate(idx, 'name', e.target.value)} required />
-            {errors[idx]?.name && <span className="error">{errors[idx].name}</span>}
-          </label>
-          <br />
-          <label>
-            Place:
-            <input type="text" value={worker.place} onChange={e => handleWorkerChange(idx, 'place', e.target.value)} onBlur={e => validate(idx, 'place', e.target.value)} required />
-            {errors[idx]?.place && <span className="error">{errors[idx].place}</span>}
-          </label>
-          <br />
-          <label>
-            Work Sector:
-            <input type="text" value={worker.workSector} onChange={e => handleWorkerChange(idx, 'workSector', e.target.value)} onBlur={e => validate(idx, 'workSector', e.target.value)} required />
-            {errors[idx]?.workSector && <span className="error">{errors[idx].workSector}</span>}
-          </label>
-          <br />
-          <label>
-            Skills/Expertise:
-            <input type="text" value={worker.skillsExpertise} onChange={e => handleWorkerChange(idx, 'skillsExpertise', e.target.value)} onBlur={e => validate(idx, 'skillsExpertise', e.target.value)} required />
-            {errors[idx]?.skillsExpertise && <span className="error">{errors[idx].skillsExpertise}</span>}
-          </label>
-          <br />
-          <label>
-            Employment Duration (months):
-            <input type="number" min={0} value={worker.employmentDuration} onChange={e => {
-              const val = e.target.value;
-              if (/^\d*$/.test(val)) handleWorkerChange(idx, 'employmentDuration', val === '' ? '' : parseInt(val));
-            }} onBlur={e => validate(idx, 'employmentDuration', e.target.value)} required />
-            {errors[idx]?.employmentDuration && <span className="error">{errors[idx].employmentDuration}</span>}
-          </label>
-          <br />
-          <label>
-            Additional Details:
-            <input type="text" value={worker.additionalDetails} onChange={e => handleWorkerChange(idx, 'additionalDetails', e.target.value)} />
-          </label>
-          <br />
-          <button type="button" onClick={() => removeWorker(idx)} style={{ color: 'red' }}>Remove</button>
-        </div>
+        <Box key={idx} sx={{ border: '1px solid #ccc', borderRadius: 2, p: 2, mb: 2 }}>
+          <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr' }} gap={2}>
+            <TextField
+              label="Name"
+              value={worker.name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleWorkerChange(idx, 'name', e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => validate(idx, 'name', e.target.value)}
+              error={!!errors[idx]?.name}
+              helperText={errors[idx]?.name || 'Enter name'}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Place"
+              value={worker.place}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleWorkerChange(idx, 'place', e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => validate(idx, 'place', e.target.value)}
+              error={!!errors[idx]?.place}
+              helperText={errors[idx]?.place || 'Enter place'}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Work Sector"
+              value={worker.workSector}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleWorkerChange(idx, 'workSector', e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => validate(idx, 'workSector', e.target.value)}
+              error={!!errors[idx]?.workSector}
+              helperText={errors[idx]?.workSector || 'Enter work sector'}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Skills/Expertise"
+              value={worker.skillsExpertise}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleWorkerChange(idx, 'skillsExpertise', e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => validate(idx, 'skillsExpertise', e.target.value)}
+              error={!!errors[idx]?.skillsExpertise}
+              helperText={errors[idx]?.skillsExpertise || 'Enter skills/expertise'}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Employment Duration (months)"
+              type="number"
+              inputProps={{ min: 0 }}
+              value={worker.employmentDuration}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => { const val = e.target.value; if (/^\d*$/.test(val)) handleWorkerChange(idx, 'employmentDuration', val === '' ? '' : parseInt(val)); }}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => validate(idx, 'employmentDuration', e.target.value)}
+              error={!!errors[idx]?.employmentDuration}
+              helperText={errors[idx]?.employmentDuration || 'Enter duration in months'}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Additional Details"
+              value={worker.additionalDetails}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleWorkerChange(idx, 'additionalDetails', e.target.value)}
+              fullWidth
+            />
+          </Box>
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button variant="outlined" color="error" onClick={() => removeWorker(idx)}>
+              Remove
+            </Button>
+          </Box>
+        </Box>
       ))}
-      <button type="button" onClick={addWorker}>Add Migrant Worker</button>
-    </div>
+      <Box mt={2} display="flex" justifyContent="flex-end">
+        <Button variant="contained" color="primary" onClick={addWorker} sx={{ fontWeight: 600 }}>
+          Add Migrant Worker
+        </Button>
+      </Box>
+    </Paper>
   );
 };
 
