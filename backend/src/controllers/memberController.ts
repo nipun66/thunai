@@ -9,7 +9,7 @@ const memberSchema = z.object({
   household_id: z.string().uuid(),
   name: z.string().max(150),
   aadhaar_number: z.string().max(16).optional(),
-  date_of_birth: z.string().transform(str => new Date(str)),
+  date_of_birth: z.string().transform((str) => new Date(str)),
   gender: z.string().max(20),
   relation_to_head: z.string().max(50),
   marital_status: z.string().max(50).optional(),
@@ -52,19 +52,19 @@ export const getMembers = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { member_id } = req.params;
+    const { member_id } = req.params;
     const member = await prisma.members.findUnique({
       where: { member_id },
       include: {
         households: true,
       },
     });
-    
+
     if (!member) {
       res.status(404).json({ error: 'Member not found' });
       return;
     }
-    
+
     res.json(member);
   } catch (error) {
     console.error('Get member error:', error);
@@ -74,12 +74,12 @@ export const getMember = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const createMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const parse = memberSchema.safeParse(req.body);
-  if (!parse.success) {
+    const parse = memberSchema.safeParse(req.body);
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const member = await prisma.members.create({
       data: {
         household_id: parse.data.household_id,
@@ -102,7 +102,7 @@ export const createMember = async (req: AuthRequest, res: Response): Promise<voi
         households: true,
       },
     });
-    
+
     res.status(201).json(member);
   } catch (error) {
     console.error('Create member error:', error);
@@ -112,14 +112,14 @@ export const createMember = async (req: AuthRequest, res: Response): Promise<voi
 
 export const updateMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { member_id } = req.params;
-  const parse = memberSchema.partial().safeParse(req.body);
-    
-  if (!parse.success) {
+    const { member_id } = req.params;
+    const parse = memberSchema.partial().safeParse(req.body);
+
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const member = await prisma.members.update({
       where: { member_id },
       data: {
@@ -143,7 +143,7 @@ export const updateMember = async (req: AuthRequest, res: Response): Promise<voi
         households: true,
       },
     });
-    
+
     res.json(member);
   } catch (error) {
     console.error('Update member error:', error);
@@ -153,15 +153,15 @@ export const updateMember = async (req: AuthRequest, res: Response): Promise<voi
 
 export const deleteMember = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { member_id } = req.params;
-    
+    const { member_id } = req.params;
+
     await prisma.members.delete({
       where: { member_id },
     });
-    
+
     res.json({ message: 'Member deleted successfully' });
   } catch (error) {
     console.error('Delete member error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};

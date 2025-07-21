@@ -18,13 +18,14 @@ export function auditLog(defaultActionType: string) {
       const maskSensitive = (obj: any) => {
         if (!obj || typeof obj !== 'object') return obj;
         const clone = { ...obj };
-        ['password', 'token', 'accessToken', 'refreshToken'].forEach(f => {
+        ['password', 'token', 'accessToken', 'refreshToken'].forEach((f) => {
           if (clone[f]) clone[f] = '[MASKED]';
         });
         return clone;
       };
       const bodyForLog = req.method !== 'GET' ? JSON.stringify(maskSensitive(req.body)) : '';
-      const queryForLog = req.query && Object.keys(req.query).length ? JSON.stringify(req.query) : '';
+      const queryForLog =
+        req.query && Object.keys(req.query).length ? JSON.stringify(req.query) : '';
 
       // Use dynamic action type if set on request, else default
       const actionType = (req as any).auditActionType || defaultActionType;
@@ -51,9 +52,9 @@ export function auditLog(defaultActionType: string) {
         }
         console.log(
           `[AUDIT] ${timestamp} - ${actionType} - ${method} ${url} by user ${userId} (${userPhone}) from ${ip} | Device: ${userAgent}` +
-          (bodyForLog ? ` | Body: ${bodyForLog}` : '') +
-          (queryForLog ? ` | Query: ${queryForLog}` : '') +
-          ` | Status: ${res.statusCode}`
+            (bodyForLog ? ` | Body: ${bodyForLog}` : '') +
+            (queryForLog ? ` | Query: ${queryForLog}` : '') +
+            ` | Status: ${res.statusCode}`,
         );
       });
       next();

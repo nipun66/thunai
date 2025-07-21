@@ -19,7 +19,7 @@ const householdSchema = z.object({
   house_number: z.string().max(50).optional(),
   family_members_count: z.number().optional(),
   ration_card_number: z.string().max(50).optional(),
-  survey_date: z.string().transform(str => new Date(str)),
+  survey_date: z.string().transform((str) => new Date(str)),
   enumerator_id: z.string().uuid(),
   local_id: z.string().max(255).optional(),
 });
@@ -27,7 +27,7 @@ const householdSchema = z.object({
 const memberSchema = z.object({
   name: z.string().max(150),
   aadhaar_number: z.string().max(16).optional(),
-  date_of_birth: z.string().transform(str => new Date(str)),
+  date_of_birth: z.string().transform((str) => new Date(str)),
   gender: z.string().max(20),
   relation_to_head: z.string().max(50),
   marital_status: z.string().max(50).optional(),
@@ -54,36 +54,36 @@ export const getHouseholds = async (req: Request, res: Response): Promise<void> 
     const category = req.query.category as string;
     const panchayat = req.query.panchayat as string;
     const hamlet = req.query.hamlet as string;
-    
+
     const skip = (page - 1) * limit;
-    
+
     // Build where clause
     const whereClause: any = { is_deleted: false };
-    
+
     if (search) {
       whereClause.OR = [
         { household_head_name: { contains: search, mode: 'insensitive' } },
         { address: { contains: search, mode: 'insensitive' } },
         { ration_card_number: { contains: search, mode: 'insensitive' } },
-        { grama_panchayat: { contains: search, mode: 'insensitive' } }
+        { grama_panchayat: { contains: search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (category) {
       whereClause.category = category;
     }
-    
+
     if (panchayat) {
       whereClause.grama_panchayat = panchayat;
     }
-    
+
     if (hamlet) {
       whereClause.hamlet_id = parseInt(hamlet);
     }
-    
+
     // Get total count
     const total = await prisma.households.count({ where: whereClause });
-    
+
     // Get households with pagination
     const households = await prisma.households.findMany({
       where: whereClause,
@@ -93,14 +93,14 @@ export const getHouseholds = async (req: Request, res: Response): Promise<void> 
       include: {
         members: {
           where: { is_deleted: false },
-          take: 5
+          take: 5,
         },
-        hamlets: true
-      }
+        hamlets: true,
+      },
     });
-    
+
     const totalPages = Math.ceil(total / limit);
-    
+
     res.json({
       success: true,
       households,
@@ -110,14 +110,14 @@ export const getHouseholds = async (req: Request, res: Response): Promise<void> 
         total,
         totalPages,
         hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
+        hasPrev: page > 1,
+      },
     });
   } catch (error) {
     console.error('❌ Get households error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch households',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -126,12 +126,12 @@ export const getHouseholds = async (req: Request, res: Response): Promise<void> 
 export const getHousehold = async (req: Request, res: Response): Promise<void> => {
   try {
     const { household_id } = req.params;
-    
+
     const household = await prisma.households.findUnique({
       where: { household_id },
       include: {
         members: {
-          where: { is_deleted: false }
+          where: { is_deleted: false },
         },
         migrant_workers: true,
         land_assets: true,
@@ -165,24 +165,24 @@ export const getHousehold = async (req: Request, res: Response): Promise<void> =
         public_institutions: true,
         phone_connectivity: true,
         additional_info: true,
-        hamlets: true
-      }
+        hamlets: true,
+      },
     });
-    
+
     if (!household) {
       res.status(404).json({ error: 'Household not found' });
       return;
     }
-    
+
     res.json({
       success: true,
-      household
+      household,
     });
   } catch (error) {
     console.error('❌ Get household error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch household',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -206,10 +206,13 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
       occupation_sector: m.occupation_sector || '',
       marital_status: m.marital_status || '',
       bank_account: typeof m.bank_account === 'boolean' ? m.bank_account : toBool(m.bank_account),
-      has_aadhaar: typeof m.has_aadhaar === 'boolean' ? m.has_aadhaar : toBool(m.has_aadhaar || m.aadhaar_number),
+      has_aadhaar:
+        typeof m.has_aadhaar === 'boolean'
+          ? m.has_aadhaar
+          : toBool(m.has_aadhaar || m.aadhaar_number),
       pension: m.pension || '',
       additional_details: m.additional_details || '',
-      date_of_birth: m.date_of_birth || new Date().toISOString()
+      date_of_birth: m.date_of_birth || new Date().toISOString(),
     });
     // Helper to map sanitation fields
     const mapSanitation = (s: any) => ({
@@ -228,7 +231,7 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
       toilet_floor_type: s.toilet_floor_type || '',
       water_availability: s.water_availability || '',
       additional_notes: s.additional_notes || '',
-      estimated_budget: s.estimated_budget || 0
+      estimated_budget: s.estimated_budget || 0,
     });
     // Add similar mapping for other nested relations as needed...
 
@@ -244,9 +247,9 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
 
     // Validate required fields
     if (!householdData.household_head_name || !householdData.hamlet_id) {
-      res.status(400).json({ 
+      res.status(400).json({
         error: 'Missing required fields',
-        required: ['household_head_name', 'hamlet_id']
+        required: ['household_head_name', 'hamlet_id'],
       });
       return;
     }
@@ -255,21 +258,21 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
     let enumerator_id = householdData.enumerator_id;
     if (enumerator_id === 'system@thunai.com') {
       const systemUser = await prisma.users.findFirst({
-        where: { phone_number: 'system@thunai.com' }
+        where: { phone_number: 'system@thunai.com' },
       });
       if (systemUser) {
         enumerator_id = systemUser.user_id;
       } else {
         // Fallback to admin user if system user doesn't exist
         const adminUser = await prisma.users.findFirst({
-          where: { phone_number: 'admin@thunai.com' }
+          where: { phone_number: 'admin@thunai.com' },
         });
         if (adminUser) {
           enumerator_id = adminUser.user_id;
         } else {
-          res.status(500).json({ 
+          res.status(500).json({
             error: 'No valid enumerator found',
-            details: 'System user and admin user not found in database'
+            details: 'System user and admin user not found in database',
           });
           return;
         }
@@ -282,19 +285,44 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
       enumerator_id,
       survey_date: new Date(householdData.survey_date || new Date()),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     // List of nested relations
     const nestedRelations = [
-      'members', 'migrant_workers', 'land_assets', 'govt_scheme_houses', 'housing_details',
-      'electrical_facilities', 'sanitation_facilities', 'water_sources', 'waste_management',
-      'health_conditions', 'education_details', 'employment_details', 'entitlements',
-      'nutrition_access', 'transportation', 'shg_participation', 'loans_debts',
-      'balasabha_participation', 'child_groups', 'agricultural_land', 'cultivation_mode',
-      'traditional_farming', 'livestock_details', 'food_consumption', 'cash_crops',
-      'forest_resources', 'social_issues', 'wage_employment', 'livelihood_opportunities',
-      'arts_sports', 'public_institutions', 'phone_connectivity', 'additional_info'
+      'members',
+      'migrant_workers',
+      'land_assets',
+      'govt_scheme_houses',
+      'housing_details',
+      'electrical_facilities',
+      'sanitation_facilities',
+      'water_sources',
+      'waste_management',
+      'health_conditions',
+      'education_details',
+      'employment_details',
+      'entitlements',
+      'nutrition_access',
+      'transportation',
+      'shg_participation',
+      'loans_debts',
+      'balasabha_participation',
+      'child_groups',
+      'agricultural_land',
+      'cultivation_mode',
+      'traditional_farming',
+      'livestock_details',
+      'food_consumption',
+      'cash_crops',
+      'forest_resources',
+      'social_issues',
+      'wage_employment',
+      'livelihood_opportunities',
+      'arts_sports',
+      'public_institutions',
+      'phone_connectivity',
+      'additional_info',
     ];
 
     for (const rel of nestedRelations) {
@@ -309,20 +337,20 @@ export const createHousehold = async (req: Request, res: Response): Promise<void
       data,
       include: {
         members: true,
-        hamlets: true
-      }
+        hamlets: true,
+      },
     });
 
     res.status(201).json({
       success: true,
       message: 'Household created successfully',
-      household
+      household,
     });
   } catch (error) {
     console.error('❌ Create household error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to create household',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -335,7 +363,7 @@ export const updateHousehold = async (req: AuthRequest, res: Response): Promise<
 
     // Check if household exists
     const existingHousehold = await prisma.households.findUnique({
-      where: { household_id }
+      where: { household_id },
     });
 
     if (!existingHousehold) {
@@ -348,24 +376,24 @@ export const updateHousehold = async (req: AuthRequest, res: Response): Promise<
       where: { household_id },
       data: {
         ...updateData,
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       include: {
         members: true,
-        hamlets: true
-      }
+        hamlets: true,
+      },
     });
 
     res.json({
       success: true,
       message: 'Household updated successfully',
-      household: updatedHousehold
+      household: updatedHousehold,
     });
   } catch (error) {
     console.error('❌ Update household error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to update household',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -377,7 +405,7 @@ export const deleteHousehold = async (req: AuthRequest, res: Response): Promise<
 
     // Check if household exists
     const existingHousehold = await prisma.households.findUnique({
-      where: { household_id }
+      where: { household_id },
     });
 
     if (!existingHousehold) {
@@ -390,19 +418,19 @@ export const deleteHousehold = async (req: AuthRequest, res: Response): Promise<
       where: { household_id },
       data: {
         is_deleted: true,
-        updated_at: new Date()
-      }
+        updated_at: new Date(),
+      },
     });
 
     res.json({
       success: true,
-      message: 'Household deleted successfully'
+      message: 'Household deleted successfully',
     });
   } catch (error) {
     console.error('❌ Delete household error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to delete household',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -411,7 +439,7 @@ export const deleteHousehold = async (req: AuthRequest, res: Response): Promise<
 export const debugHouseholdData = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const householdData = req.body;
-    
+
     res.json({
       success: true,
       message: 'Data transformation debug',
@@ -420,14 +448,14 @@ export const debugHouseholdData = async (req: AuthRequest, res: Response): Promi
         ...householdData,
         survey_date: new Date(householdData.survey_date || new Date()),
         created_at: new Date(),
-        updated_at: new Date()
-      }
+        updated_at: new Date(),
+      },
     });
   } catch (error) {
     console.error('❌ Debug household data error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to debug household data',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
@@ -436,60 +464,60 @@ export const debugHouseholdData = async (req: AuthRequest, res: Response): Promi
 export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Get total households
-    const totalHouseholds = await prisma.households.count({ 
-      where: { is_deleted: false } 
+    const totalHouseholds = await prisma.households.count({
+      where: { is_deleted: false },
     });
-    
+
     // Get total members
-    const totalMembers = await prisma.members.count({ 
-      where: { is_deleted: false } 
+    const totalMembers = await prisma.members.count({
+      where: { is_deleted: false },
     });
-    
+
     // Get completed surveys (households with survey_date)
-    const completedSurveys = await prisma.households.count({ 
-      where: { 
-        is_deleted: false, 
-        survey_date: { not: null }
-      } 
+    const completedSurveys = await prisma.households.count({
+      where: {
+        is_deleted: false,
+        survey_date: { not: null },
+      },
     });
-    
+
     // Get pending surveys (households without survey_date)
-    const pendingSurveys = await prisma.households.count({ 
-      where: { 
-        is_deleted: false, 
-        survey_date: null 
-      } 
+    const pendingSurveys = await prisma.households.count({
+      where: {
+        is_deleted: false,
+        survey_date: null,
+      },
     });
-    
+
     // Get unique hamlets covered
-    const hamletsCovered = await prisma.households.groupBy({ 
-      by: ['hamlet_id'], 
-      where: { is_deleted: false } 
+    const hamletsCovered = await prisma.households.groupBy({
+      by: ['hamlet_id'],
+      where: { is_deleted: false },
     });
-    
+
     // Get unique panchayats covered
-    const panchayatsCovered = await prisma.households.groupBy({ 
-      by: ['grama_panchayat'], 
-      where: { is_deleted: false } 
+    const panchayatsCovered = await prisma.households.groupBy({
+      by: ['grama_panchayat'],
+      where: { is_deleted: false },
     });
-    
+
     // Get recent activity (last 7 days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentActivity = await prisma.households.count({ 
-      where: { 
-        is_deleted: false, 
-        created_at: { gte: sevenDaysAgo } 
-      } 
+    const recentActivity = await prisma.households.count({
+      where: {
+        is_deleted: false,
+        created_at: { gte: sevenDaysAgo },
+      },
     });
-    
+
     // Get category distribution
-    const categoryDistribution = await prisma.households.groupBy({ 
-      by: ['category'], 
-      where: { is_deleted: false }, 
-      _count: { category: true } 
+    const categoryDistribution = await prisma.households.groupBy({
+      by: ['category'],
+      where: { is_deleted: false },
+      _count: { category: true },
     });
-    
+
     res.json({
       success: true,
       totalHouseholds,
@@ -499,17 +527,17 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       hamletsCovered: hamletsCovered.length,
       panchayatsCovered: panchayatsCovered.length,
       recentActivity,
-      categoryDistribution: categoryDistribution.map(cat => ({ 
-        category: cat.category || 'Unknown', 
-        count: cat._count.category 
+      categoryDistribution: categoryDistribution.map((cat) => ({
+        category: cat.category || 'Unknown',
+        count: cat._count.category,
       })),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
     console.error('❌ Get dashboard stats error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch dashboard statistics',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
-}; 
+};

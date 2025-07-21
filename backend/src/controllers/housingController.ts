@@ -31,7 +31,10 @@ const housingSchema = z.object({
 });
 
 async function getEnumeratorHamletId(userId: string) {
-  const assignment = await prisma.user_location_assignments.findFirst({ where: { user_id: userId, hamlet_id: { not: null } }, select: { hamlet_id: true } });
+  const assignment = await prisma.user_location_assignments.findFirst({
+    where: { user_id: userId, hamlet_id: { not: null } },
+    select: { hamlet_id: true },
+  });
   return assignment?.hamlet_id;
 }
 
@@ -51,19 +54,19 @@ export const getHousingDetails = async (req: AuthRequest, res: Response): Promis
 
 export const getHousingDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { housing_id } = req.params;
+    const { housing_id } = req.params;
     const housing = await prisma.housing_details.findUnique({
       where: { housing_id: Number(housing_id) },
       include: {
         households: true,
       },
     });
-    
+
     if (!housing) {
       res.status(404).json({ error: 'Housing detail not found' });
       return;
     }
-    
+
     res.json(housing);
   } catch (error) {
     console.error('Get housing detail error:', error);
@@ -73,12 +76,12 @@ export const getHousingDetail = async (req: AuthRequest, res: Response): Promise
 
 export const createHousingDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const parse = housingSchema.safeParse(req.body);
-  if (!parse.success) {
+    const parse = housingSchema.safeParse(req.body);
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const housing = await prisma.housing_details.create({
       data: {
         household_id: parse.data.household_id,
@@ -107,7 +110,7 @@ export const createHousingDetail = async (req: AuthRequest, res: Response): Prom
         households: true,
       },
     });
-    
+
     res.status(201).json(housing);
   } catch (error) {
     console.error('Create housing detail error:', error);
@@ -117,14 +120,14 @@ export const createHousingDetail = async (req: AuthRequest, res: Response): Prom
 
 export const updateHousingDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { housing_id } = req.params;
-  const parse = housingSchema.partial().safeParse(req.body);
-    
-  if (!parse.success) {
+    const { housing_id } = req.params;
+    const parse = housingSchema.partial().safeParse(req.body);
+
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const housing = await prisma.housing_details.update({
       where: { housing_id: Number(housing_id) },
       data: {
@@ -154,7 +157,7 @@ export const updateHousingDetail = async (req: AuthRequest, res: Response): Prom
         households: true,
       },
     });
-    
+
     res.json(housing);
   } catch (error) {
     console.error('Update housing detail error:', error);
@@ -164,15 +167,15 @@ export const updateHousingDetail = async (req: AuthRequest, res: Response): Prom
 
 export const deleteHousingDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { housing_id } = req.params;
-    
+    const { housing_id } = req.params;
+
     await prisma.housing_details.delete({
       where: { housing_id: Number(housing_id) },
     });
-    
+
     res.json({ message: 'Housing detail deleted successfully' });
   } catch (error) {
     console.error('Delete housing detail error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};

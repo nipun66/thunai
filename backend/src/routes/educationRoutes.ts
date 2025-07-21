@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getEducationDetails, getEducationDetail, createEducationDetail, updateEducationDetail, deleteEducationDetail } from '../controllers/educationController';
+import {
+  getEducationDetails,
+  getEducationDetail,
+  createEducationDetail,
+  updateEducationDetail,
+  deleteEducationDetail,
+} from '../controllers/educationController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -20,4 +26,4 @@ router.post('/', createEducationDetail);
 router.put('/:id', updateEducationDetail);
 router.delete('/:id', deleteEducationDetail);
 
-export default router; 
+export default router;

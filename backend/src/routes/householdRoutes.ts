@@ -73,13 +73,13 @@
  */
 
 import { Router } from 'express';
-import { 
-  getHouseholds, 
-  getHousehold, 
-  createHousehold, 
-  updateHousehold, 
+import {
+  getHouseholds,
+  getHousehold,
+  createHousehold,
+  updateHousehold,
   deleteHousehold,
-  debugHouseholdData
+  debugHouseholdData,
 } from '../controllers/householdController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 

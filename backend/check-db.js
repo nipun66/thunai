@@ -9,7 +9,7 @@ async function checkAndCreateRequiredData() {
     // Check if default user exists
     console.log('1️⃣ Checking default user...');
     const defaultUser = await prisma.users.findFirst({
-      where: { phone_number: 'admin@thunai.com' }
+      where: { phone_number: 'admin@thunai.com' },
     });
 
     if (!defaultUser) {
@@ -20,8 +20,8 @@ async function checkAndCreateRequiredData() {
           phone_number: 'admin@thunai.com',
           password_hash: 'admin123',
           role_id: 1,
-          is_active: true
-        }
+          is_active: true,
+        },
       });
       console.log('✅ Default user created');
     } else {
@@ -31,15 +31,15 @@ async function checkAndCreateRequiredData() {
     // Check if default hamlet exists
     console.log('\n2️⃣ Checking default hamlet...');
     const defaultHamlet = await prisma.hamlets.findFirst({
-      where: { hamlet_id: 1 }
+      where: { hamlet_id: 1 },
     });
 
     if (!defaultHamlet) {
       console.log('❌ Default hamlet not found. Creating...');
-      
+
       // First check if required parent data exists
       const defaultDistrict = await prisma.districts.findFirst({
-        where: { district_id: 1 }
+        where: { district_id: 1 },
       });
 
       if (!defaultDistrict) {
@@ -47,13 +47,13 @@ async function checkAndCreateRequiredData() {
         await prisma.districts.create({
           data: {
             district_id: 1,
-            name: 'Default District'
-          }
+            name: 'Default District',
+          },
         });
       }
 
       const defaultBlock = await prisma.blocks.findFirst({
-        where: { block_id: 1 }
+        where: { block_id: 1 },
       });
 
       if (!defaultBlock) {
@@ -62,13 +62,13 @@ async function checkAndCreateRequiredData() {
           data: {
             block_id: 1,
             name: 'Default Block',
-            district_id: 1
-          }
+            district_id: 1,
+          },
         });
       }
 
       const defaultPanchayat = await prisma.panchayats.findFirst({
-        where: { panchayat_id: 1 }
+        where: { panchayat_id: 1 },
       });
 
       if (!defaultPanchayat) {
@@ -77,8 +77,8 @@ async function checkAndCreateRequiredData() {
           data: {
             panchayat_id: 1,
             name: 'Default Panchayat',
-            block_id: 1
-          }
+            block_id: 1,
+          },
         });
       }
 
@@ -86,8 +86,8 @@ async function checkAndCreateRequiredData() {
         data: {
           hamlet_id: 1,
           name: 'Default Hamlet',
-          panchayat_id: 1
-        }
+          panchayat_id: 1,
+        },
       });
       console.log('✅ Default hamlet created');
     } else {
@@ -103,12 +103,12 @@ async function checkAndCreateRequiredData() {
       { role_id: 4, role_name: 'ST Promoter', description: 'ST Promoter' },
       { role_id: 5, role_name: 'ASHA Worker', description: 'ASHA Worker' },
       { role_id: 6, role_name: 'Panchayath Officer', description: 'Panchayath Officer' },
-      { role_id: 7, role_name: 'District Officer', description: 'District/Block Officers' }
+      { role_id: 7, role_name: 'District Officer', description: 'District/Block Officers' },
     ];
 
     for (const role of roles) {
       const existingRole = await prisma.roles.findUnique({
-        where: { role_id: role.role_id }
+        where: { role_id: role.role_id },
       });
 
       if (!existingRole) {
@@ -120,7 +120,6 @@ async function checkAndCreateRequiredData() {
 
     console.log('\n🎉 All required foreign key data is ready!');
     console.log('📊 You can now create households without foreign key errors.');
-
   } catch (error) {
     console.error('❌ Error checking/creating required data:', error);
   } finally {
@@ -128,4 +127,4 @@ async function checkAndCreateRequiredData() {
   }
 }
 
-checkAndCreateRequiredData(); 
+checkAndCreateRequiredData();

@@ -48,12 +48,12 @@ export const getSanitationDetail = async (req: AuthRequest, res: Response): Prom
         households: true,
       },
     });
-    
+
     if (!sanitation) {
       res.status(404).json({ error: 'Sanitation detail not found' });
       return;
     }
-    
+
     res.json(sanitation);
   } catch (error) {
     console.error('Get sanitation detail error:', error);
@@ -63,12 +63,12 @@ export const getSanitationDetail = async (req: AuthRequest, res: Response): Prom
 
 export const createSanitationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const parse = sanitationSchema.safeParse(req.body);
-  if (!parse.success) {
+    const parse = sanitationSchema.safeParse(req.body);
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const sanitation = await prisma.sanitation_facilities.create({
       data: {
         household_id: parse.data.household_id,
@@ -93,7 +93,7 @@ export const createSanitationDetail = async (req: AuthRequest, res: Response): P
         households: true,
       },
     });
-    
+
     res.status(201).json(sanitation);
   } catch (error) {
     console.error('Create sanitation detail error:', error);
@@ -104,13 +104,13 @@ export const createSanitationDetail = async (req: AuthRequest, res: Response): P
 export const updateSanitationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { facility_id } = req.params;
-  const parse = sanitationSchema.partial().safeParse(req.body);
-    
-  if (!parse.success) {
+    const parse = sanitationSchema.partial().safeParse(req.body);
+
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const sanitation = await prisma.sanitation_facilities.update({
       where: { facility_id: Number(facility_id) },
       data: {
@@ -136,7 +136,7 @@ export const updateSanitationDetail = async (req: AuthRequest, res: Response): P
         households: true,
       },
     });
-    
+
     res.json(sanitation);
   } catch (error) {
     console.error('Update sanitation detail error:', error);
@@ -147,14 +147,14 @@ export const updateSanitationDetail = async (req: AuthRequest, res: Response): P
 export const deleteSanitationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { facility_id } = req.params;
-    
+
     await prisma.sanitation_facilities.delete({
       where: { facility_id: Number(facility_id) },
     });
-    
+
     res.json({ message: 'Sanitation detail deleted successfully' });
   } catch (error) {
     console.error('Delete sanitation detail error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};

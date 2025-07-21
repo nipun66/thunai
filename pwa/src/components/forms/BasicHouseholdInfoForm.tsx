@@ -51,7 +51,7 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
       <Box display="flex" flexDirection="column" gap={2}>
         <TextField
           label="Head of Household"
-          value={householdData.headOfHousehold}
+          value={householdData.headOfHousehold ?? ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const val = FormValidator.sanitize(e.target.value);
             onChange('headOfHousehold', val);
@@ -62,13 +62,14 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
           helperText={errors.headOfHousehold || 'Enter the name of the head of household'}
           required
           fullWidth
-          inputProps={{ pattern: "[\p{L}\s'-]+", minLength: 2, maxLength: 50, 'aria-label': 'Head of Household' }}
+          // Fixed pattern: only letters, spaces, apostrophes, hyphens
+          inputProps={{ pattern: "[a-zA-Z\s'-]+", minLength: 2, maxLength: 50, 'aria-label': 'Head of Household' }}
         />
         <TextField
           label="Household Size"
           type="number"
           inputProps={{ min: 1, max: 30, step: 1, 'aria-label': 'Household Size' }}
-          value={householdData.householdSize}
+          value={householdData.householdSize === 0 ? '' : householdData.householdSize}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const val = e.target.value === '' ? '' : parseInt(e.target.value);
             onChange('householdSize', val);
@@ -82,7 +83,7 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
         />
         <TextField
           label="Address"
-          value={householdData.address}
+          value={householdData.address ?? ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const val = FormValidator.sanitize(e.target.value);
             onChange('address', val);

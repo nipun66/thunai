@@ -89,9 +89,10 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
 
   const addFamilyMember = () => {
     if (!validateAll()) return;
+    // If setHouseholdData does not accept a function, use the direct update form:
     setHouseholdData({
       ...householdData,
-      members: [...members, newMember],
+      members: [...(Array.isArray(householdData.members) ? householdData.members : []), newMember],
     });
     setNewMember(defaultMember);
     setErrors(resetErrors);
@@ -107,7 +108,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
         <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr 1fr' }} gap={2}>
           <TextField
             label="Name"
-            value={newMember.name}
+            value={newMember.name ?? ''}
             onChange={(e) => {
               const val = FormValidator.sanitize(e.target.value);
               setNewMember(prev => ({ ...prev, name: val }));
@@ -118,12 +119,13 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
             helperText={errors.name || 'Enter member name'}
             required
             fullWidth
-            inputProps={{ pattern: "[\p{L}\s'-]+", minLength: 2, maxLength: 50, 'aria-label': 'Name' }}
+            // Fixed pattern: only letters, spaces, apostrophes, hyphens
+            inputProps={{ pattern: "[a-zA-Z '-]+", minLength: 2, maxLength: 50, 'aria-label': 'Name' }}
           />
           <TextField
             select
             label="Relationship with Head"
-            value={newMember.relationship}
+            value={newMember.relationship ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, relationship: e.target.value })); validate('relationship', e.target.value); }}
             onBlur={e => validate('relationship', e.target.value)}
             error={Boolean(errors.relationship)}
@@ -144,7 +146,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           <TextField
             select
             label="Gender"
-            value={newMember.gender}
+            value={newMember.gender ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, gender: e.target.value })); validate('gender', e.target.value); }}
             onBlur={e => validate('gender', e.target.value)}
             error={Boolean(errors.gender)}
@@ -161,7 +163,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
             label="Age (as of Jan 1, 2025)"
             type="number"
             inputProps={{ min: 0, max: 120, step: 1, 'aria-label': 'Age' }}
-            value={newMember.age}
+            value={newMember.age === 0 ? '' : newMember.age}
             onChange={(e) => {
               const val = e.target.value === '' ? 0 : parseInt(e.target.value);
               setNewMember(prev => ({ ...prev, age: Number.isNaN(val) ? 0 : val }));
@@ -179,7 +181,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           <TextField
             select
             label="General Education Level"
-            value={newMember.educationLevel}
+            value={newMember.educationLevel ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, educationLevel: e.target.value })); validate('educationLevel', e.target.value); }}
             onBlur={e => validate('educationLevel', e.target.value)}
             error={Boolean(errors.educationLevel)}
@@ -200,7 +202,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           </TextField>
           <TextField
             label="Vocational/Practical Knowledge"
-            value={newMember.vocationalKnowledge}
+            value={newMember.vocationalKnowledge ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, vocationalKnowledge: e.target.value })); validate('vocationalKnowledge', e.target.value); }}
             onBlur={e => validate('vocationalKnowledge', e.target.value)}
             error={Boolean(errors.vocationalKnowledge)}
@@ -210,7 +212,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           <TextField
             select
             label="Occupation Sector"
-            value={newMember.occupationSector}
+            value={newMember.occupationSector ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, occupationSector: e.target.value })); validate('occupationSector', e.target.value); }}
             onBlur={e => validate('occupationSector', e.target.value)}
             error={Boolean(errors.occupationSector)}
@@ -226,7 +228,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           <TextField
             select
             label="Marital Status"
-            value={newMember.maritalStatus}
+            value={newMember.maritalStatus ?? ''}
             onChange={(e) => { setNewMember(prev => ({ ...prev, maritalStatus: e.target.value })); validate('maritalStatus', e.target.value); }}
             onBlur={e => validate('maritalStatus', e.target.value)}
             error={Boolean(errors.maritalStatus)}
@@ -262,13 +264,13 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
           </TextField>
           <TextField
             label="Pension"
-            value={newMember.pension}
+            value={newMember.pension ?? ''}
             onChange={(e) => setNewMember(prev => ({ ...prev, pension: e.target.value }))}
             fullWidth
           />
           <TextField
             label="Additional Details"
-            value={newMember.additionalDetails}
+            value={newMember.additionalDetails ?? ''}
             onChange={(e) => setNewMember(prev => ({ ...prev, additionalDetails: e.target.value }))}
             fullWidth
           />

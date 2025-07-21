@@ -7,12 +7,12 @@ export const requireRole = (allowedRoles: number[]) => {
       res.status(401).json({ error: 'Authentication required' });
       return;
     }
-    
+
     if (!allowedRoles.includes(req.user.roleId)) {
       res.status(403).json({ error: 'Insufficient permissions' });
       return;
     }
-    
+
     next();
   };
-}; 
+};

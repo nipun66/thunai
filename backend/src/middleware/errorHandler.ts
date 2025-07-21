@@ -5,12 +5,7 @@ export interface AppError extends Error {
   isOperational?: boolean;
 }
 
-export const errorHandler = (
-  err: AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const errorHandler = (err: AppError, req: Request, res: Response, next: NextFunction) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -21,7 +16,7 @@ export const errorHandler = (
     url: req.url,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get('User-Agent'),
   });
 
   // Prisma errors
@@ -56,6 +51,6 @@ export const errorHandler = (
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
-}; 
+};

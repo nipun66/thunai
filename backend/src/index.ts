@@ -33,53 +33,60 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-}));
+  }),
+);
 
 // CORS configuration for PWA and Dashboard
-app.use(cors({
-  origin: [
-    'http://localhost:3000', // Dashboard
-    'http://localhost:5173', // PWA
-    'http://localhost:4173', // PWA preview
-    'https://thunai-dashboard.vercel.app', // Production dashboard
-    'https://thunai-pwa.vercel.app' // Production PWA
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000', // Dashboard
+      'http://localhost:5173', // PWA
+      'http://localhost:4173', // PWA preview
+      'https://thunai-dashboard.vercel.app', // Production dashboard
+      'https://thunai-pwa.vercel.app', // Production PWA
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  }),
+);
 
 // JSON parsing middleware with robust error handling
-app.use(express.json({ 
-  limit: '10mb',
-  verify: (req: any, res: any, buf: Buffer) => {
-    try {
-      if (buf.length > 0) {
-        // Sanitize the buffer by removing control characters
-        const sanitizedBuffer = Buffer.from(buf.toString().replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
-        JSON.parse(sanitizedBuffer.toString());
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req: any, res: any, buf: Buffer) => {
+      try {
+        if (buf.length > 0) {
+          // Sanitize the buffer by removing control characters
+          const sanitizedBuffer = Buffer.from(buf.toString().replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
+          JSON.parse(sanitizedBuffer.toString());
+        }
+      } catch (e) {
+        console.error('JSON parsing error:', e);
+        console.error('Received body:', buf.toString().substring(0, 200) + '...');
+        res.status(400).json({
+          error: 'Invalid JSON format',
+          details:
+            'The request body contains malformed JSON. Please check for special characters or invalid syntax.',
+          receivedData: buf.toString().substring(0, 200) + '...',
+        });
+        return;
       }
-    } catch (e) {
-      console.error('JSON parsing error:', e);
-      console.error('Received body:', buf.toString().substring(0, 200) + '...');
-      res.status(400).json({ 
-        error: 'Invalid JSON format',
-        details: 'The request body contains malformed JSON. Please check for special characters or invalid syntax.',
-        receivedData: buf.toString().substring(0, 200) + '...'
-      });
-      return;
-    }
-  }
-}));
+    },
+  }),
+);
 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -109,7 +116,7 @@ const createDefaultUsers = async () => {
       { role_id: 4, role_name: 'ST Promoter', description: 'ST Promoter' },
       { role_id: 5, role_name: 'ASHA Worker', description: 'ASHA Worker' },
       { role_id: 6, role_name: 'Panchayath Officer', description: 'Panchayath Officer' },
-      { role_id: 7, role_name: 'District Officer', description: 'District/Block Officers' }
+      { role_id: 7, role_name: 'District Officer', description: 'District/Block Officers' },
     ];
 
     for (const role of roles) {
@@ -117,12 +124,12 @@ const createDefaultUsers = async () => {
         await prisma.roles.upsert({
           where: { role_id: role.role_id },
           update: {},
-          create: role
+          create: role,
         });
       } catch (error) {
         // If upsert fails due to unique constraint, try to find existing role
         const existingRole = await prisma.roles.findFirst({
-          where: { role_name: role.role_name }
+          where: { role_name: role.role_name },
         });
         if (!existingRole) {
           console.log(`Creating role: ${role.role_name}`);
@@ -135,7 +142,7 @@ const createDefaultUsers = async () => {
     // Step 2: Create default admin user
     console.log('2️⃣ Creating default admin user...');
     const existingUser = await prisma.users.findFirst({
-      where: { phone_number: 'admin@thunai.com' }
+      where: { phone_number: 'admin@thunai.com' },
     });
 
     let adminUserId: string;
@@ -146,8 +153,8 @@ const createDefaultUsers = async () => {
           phone_number: 'admin@thunai.com',
           password_hash: 'admin123', // In production, this should be hashed
           role_id: 1, // Admin role
-          is_active: true
-        }
+          is_active: true,
+        },
       });
       adminUserId = adminUser.user_id;
       console.log('✅ Default admin user created:', adminUserId);
@@ -158,15 +165,15 @@ const createDefaultUsers = async () => {
 
     // Step 3: Create default location hierarchy
     console.log('3️⃣ Creating default location hierarchy...');
-    
+
     // Create default district
     const defaultDistrict = await prisma.districts.upsert({
       where: { district_id: 1 },
       update: {},
       create: {
         district_id: 1,
-        name: 'Default District'
-      }
+        name: 'Default District',
+      },
     });
     console.log('✅ Default district created/updated:', defaultDistrict.district_id);
 
@@ -177,8 +184,8 @@ const createDefaultUsers = async () => {
       create: {
         block_id: 1,
         name: 'Default Block',
-        district_id: 1
-      }
+        district_id: 1,
+      },
     });
     console.log('✅ Default block created/updated:', defaultBlock.block_id);
 
@@ -189,8 +196,8 @@ const createDefaultUsers = async () => {
       create: {
         panchayat_id: 1,
         name: 'Default Panchayat',
-        block_id: 1
-      }
+        block_id: 1,
+      },
     });
     console.log('✅ Default panchayat created/updated:', defaultPanchayat.panchayat_id);
 
@@ -201,8 +208,8 @@ const createDefaultUsers = async () => {
       create: {
         hamlet_id: 1,
         name: 'Default Hamlet',
-        panchayat_id: 1
-      }
+        panchayat_id: 1,
+      },
     });
     console.log('✅ Default hamlet created/updated:', defaultHamlet.hamlet_id);
 
@@ -216,8 +223,8 @@ const createDefaultUsers = async () => {
         phone_number: 'system@thunai.com',
         password_hash: 'system123',
         role_id: 2, // Enumerator role
-        is_active: true
-      }
+        is_active: true,
+      },
     });
     console.log('✅ System user created/updated:', systemUser.user_id);
 
@@ -229,7 +236,6 @@ const createDefaultUsers = async () => {
     console.log('📊 System is ready for PWA submissions');
     console.log('🔑 System User ID:', systemUser.user_id);
     console.log('🏘️ Default Hamlet ID: 1');
-
   } catch (error) {
     console.error('❌ Error creating default users:', error);
     throw error; // Re-throw to prevent server startup with incomplete data
@@ -240,9 +246,9 @@ const createDefaultUsers = async () => {
 app.get('/health', async (req: Request, res: Response) => {
   try {
     const dbConnected = await testDatabaseConnection();
-    
-    res.json({ 
-      status: dbConnected ? 'OK' : 'DEGRADED', 
+
+    res.json({
+      status: dbConnected ? 'OK' : 'DEGRADED',
       timestamp: new Date().toISOString(),
       service: 'THUNAI Backend API',
       version: '1.0.0',
@@ -258,22 +264,22 @@ app.get('/health', async (req: Request, res: Response) => {
         sanitation: '/api/sanitation',
         locations: '/api/locations',
         roles: '/api/roles',
-        dashboard: '/api/dashboard'
-      }
+        dashboard: '/api/dashboard',
+      },
     });
   } catch (error) {
     res.status(500).json({
       status: 'ERROR',
       timestamp: new Date().toISOString(),
       error: 'Health check failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
-  res.json({ 
+  res.json({
     message: 'THUNAI Backend API is running! 🚀',
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -290,8 +296,8 @@ app.get('/', (req: Request, res: Response) => {
       sanitation: '/api/sanitation',
       locations: '/api/locations',
       roles: '/api/roles',
-      dashboard: '/api/dashboard'
-    }
+      dashboard: '/api/dashboard',
+    },
   });
 });
 
@@ -326,7 +332,7 @@ try {
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Endpoint not found',
     message: `The requested endpoint ${req.originalUrl} does not exist.`,
     availableEndpoints: [
@@ -339,30 +345,32 @@ app.use('*', (req: Request, res: Response) => {
       'GET /api/members',
       'POST /api/members',
       'POST /api/auth/login',
-      'POST /api/auth/register'
-    ]
+      'POST /api/auth/register',
+    ],
   });
 });
 
 // Global error handler
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Global error handler:', error);
-  
+
   // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
-  res.status(500).json({ 
+
+  res.status(500).json({
     error: 'Internal server error',
-    message: isDevelopment ? (error.message || 'An unexpected error occurred') : 'An unexpected error occurred',
+    message: isDevelopment
+      ? error.message || 'An unexpected error occurred'
+      : 'An unexpected error occurred',
     timestamp: new Date().toISOString(),
-    ...(isDevelopment && { stack: error.stack })
+    ...(isDevelopment && { stack: error.stack }),
   });
 });
 
 // Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
-  
+
   try {
     await prisma.$disconnect();
     console.log('✅ Database connection closed');
@@ -384,21 +392,21 @@ const startServer = async () => {
   try {
     console.log('🔧 Checking and creating default users...');
     await createDefaultUsers();
-    
+
     // Test database connection first
     const dbConnected = await testDatabaseConnection();
-    
+
     if (!dbConnected) {
       console.log('⚠️  Starting server with degraded database connection...');
     }
-    
+
     app.listen(PORT, () => {
       console.log(`🚀 THUNAI backend running on port ${PORT}`);
       console.log(`📊 Health check available at: http://localhost:${PORT}/health`);
       console.log(`📚 API documentation available at: http://localhost:${PORT}/`);
       console.log(`🔗 Dashboard URL: http://localhost:3000`);
       console.log(`📱 PWA URL: http://localhost:5173`);
-      
+
       if (dbConnected) {
         console.log('✅ System is fully operational');
       } else {
@@ -413,6 +421,5 @@ const startServer = async () => {
 
 // Start the server
 startServer();
-
 
 export { prisma };

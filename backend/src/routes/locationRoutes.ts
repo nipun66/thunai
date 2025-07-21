@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { getDistricts, createDistrict, getBlocks, createBlock, getPanchayats, createPanchayat, getHamlets, createHamlet } from '../controllers/locationController';
+import {
+  getDistricts,
+  createDistrict,
+  getBlocks,
+  createBlock,
+  getPanchayats,
+  createPanchayat,
+  getHamlets,
+  createHamlet,
+} from '../controllers/locationController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 import { requireRole } from '../middleware/rbacMiddleware';
 
@@ -21,4 +30,4 @@ router.post('/panchayats', createPanchayat);
 router.get('/hamlets', getHamlets);
 router.post('/hamlets', createHamlet);
 
-export default router; 
+export default router;

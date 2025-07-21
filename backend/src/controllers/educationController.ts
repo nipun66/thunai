@@ -26,8 +26,8 @@ export const getEducationDetails = async (req: AuthRequest, res: Response): Prom
     const education = await prisma.education_details.findMany({
       include: {
         households: true,
-    },
-  });
+      },
+    });
     res.json(education);
   } catch (error) {
     console.error('Get education details error:', error);
@@ -37,19 +37,19 @@ export const getEducationDetails = async (req: AuthRequest, res: Response): Prom
 
 export const getEducationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { education_id } = req.params;
+    const { education_id } = req.params;
     const education = await prisma.education_details.findUnique({
       where: { education_id: Number(education_id) },
       include: {
         households: true,
       },
     });
-    
+
     if (!education) {
       res.status(404).json({ error: 'Education detail not found' });
       return;
     }
-    
+
     res.json(education);
   } catch (error) {
     console.error('Get education detail error:', error);
@@ -59,12 +59,12 @@ export const getEducationDetail = async (req: AuthRequest, res: Response): Promi
 
 export const createEducationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const parse = educationSchema.safeParse(req.body);
-  if (!parse.success) {
+    const parse = educationSchema.safeParse(req.body);
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const education = await prisma.education_details.create({
       data: {
         household_id: parse.data.household_id,
@@ -85,7 +85,7 @@ export const createEducationDetail = async (req: AuthRequest, res: Response): Pr
         households: true,
       },
     });
-    
+
     res.status(201).json(education);
   } catch (error) {
     console.error('Create education detail error:', error);
@@ -95,14 +95,14 @@ export const createEducationDetail = async (req: AuthRequest, res: Response): Pr
 
 export const updateEducationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { education_id } = req.params;
-  const parse = educationSchema.partial().safeParse(req.body);
-    
-  if (!parse.success) {
+    const { education_id } = req.params;
+    const parse = educationSchema.partial().safeParse(req.body);
+
+    if (!parse.success) {
       res.status(400).json({ error: parse.error.flatten() });
       return;
     }
-    
+
     const education = await prisma.education_details.update({
       where: { education_id: Number(education_id) },
       data: {
@@ -124,7 +124,7 @@ export const updateEducationDetail = async (req: AuthRequest, res: Response): Pr
         households: true,
       },
     });
-    
+
     res.json(education);
   } catch (error) {
     console.error('Update education detail error:', error);
@@ -134,15 +134,15 @@ export const updateEducationDetail = async (req: AuthRequest, res: Response): Pr
 
 export const deleteEducationDetail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-  const { education_id } = req.params;
-    
+    const { education_id } = req.params;
+
     await prisma.education_details.delete({
       where: { education_id: Number(education_id) },
     });
-    
+
     res.json({ message: 'Education detail deleted successfully' });
   } catch (error) {
     console.error('Delete education detail error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; 
+};

@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getSanitationDetails, getSanitationDetail, createSanitationDetail, updateSanitationDetail, deleteSanitationDetail } from '../controllers/sanitationController';
+import {
+  getSanitationDetails,
+  getSanitationDetail,
+  createSanitationDetail,
+  updateSanitationDetail,
+  deleteSanitationDetail,
+} from '../controllers/sanitationController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 // import { requireRole } from '../middleware/rbacMiddleware'; // Add as needed
 
@@ -14,4 +20,4 @@ router.post('/', createSanitationDetail);
 router.put('/:id', updateSanitationDetail);
 router.delete('/:id', deleteSanitationDetail);
 
-export default router; 
+export default router;

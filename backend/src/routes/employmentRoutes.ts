@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getEmploymentDetails, getEmploymentDetail, createEmploymentDetail, updateEmploymentDetail, deleteEmploymentDetail } from '../controllers/employmentController';
+import {
+  getEmploymentDetails,
+  getEmploymentDetail,
+  createEmploymentDetail,
+  updateEmploymentDetail,
+  deleteEmploymentDetail,
+} from '../controllers/employmentController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -20,4 +26,4 @@ router.post('/', createEmploymentDetail);
 router.put('/:id', updateEmploymentDetail);
 router.delete('/:id', deleteEmploymentDetail);
 
-export default router; 
+export default router;

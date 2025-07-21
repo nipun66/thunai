@@ -14,7 +14,7 @@ export const householdSchema = z.object({
   house_number: z.string().max(50).optional(),
   family_members_count: z.number().optional(),
   ration_card_number: z.string().max(50).optional(),
-  survey_date: z.string().transform(str => new Date(str)),
+  survey_date: z.string().transform((str) => new Date(str)),
   enumerator_id: z.string().uuid(),
   local_id: z.string().max(255).optional(),
 });
@@ -23,7 +23,7 @@ export const householdSchema = z.object({
 export const memberSchema = z.object({
   name: z.string().max(150),
   aadhaar_number: z.string().max(16).optional(),
-  date_of_birth: z.string().transform(str => new Date(str)),
+  date_of_birth: z.string().transform((str) => new Date(str)),
   gender: z.string().max(20),
   relation_to_head: z.string().max(50),
   marital_status: z.string().max(50).optional(),
@@ -135,19 +135,19 @@ export function validatePwaData(pwaData: any) {
       return {
         isValid: false,
         errors: result.error.flatten(),
-        message: 'PWA data does not match database schema'
+        message: 'PWA data does not match database schema',
       };
     }
     return {
       isValid: true,
       data: result.data,
-      message: 'PWA data matches database schema perfectly'
+      message: 'PWA data matches database schema perfectly',
     };
   } catch (error) {
     return {
       isValid: false,
       errors: error,
-      message: 'Validation failed with exception'
+      message: 'Validation failed with exception',
     };
   }
 }
@@ -155,28 +155,37 @@ export function validatePwaData(pwaData: any) {
 export function comparePwaToDatabase(pwaData: any) {
   const expectedFields = [
     // SRS Section 1: Basic Household Information
-    'hamlet_id', 'household_head_name', 'address', 'post_office', 
-    'colony_settlement_name', 'category', 'micro_plan_number', 
-    'grama_panchayat', 'ward_number', 'house_number', 
-    'family_members_count', 'survey_date', 'enumerator_id',
-    
+    'hamlet_id',
+    'household_head_name',
+    'address',
+    'post_office',
+    'colony_settlement_name',
+    'category',
+    'micro_plan_number',
+    'grama_panchayat',
+    'ward_number',
+    'house_number',
+    'family_members_count',
+    'survey_date',
+    'enumerator_id',
+
     // SRS Section 2: Family Members
     'members',
-    
+
     // SRS Section 3: Migrant Workers
     'migrant_workers',
-    
+
     // SRS Section 4: Land Assets
     'land_assets',
-    
+
     // SRS Section 5: Housing Details
     'housing_details',
-    
+
     // SRS Section 6: Electrical Facilities
     'electrical_facilities',
-    
+
     // SRS Section 7: Sanitation Facilities
-    'sanitation_facilities'
+    'sanitation_facilities',
   ];
 
   const missingFields = [];
@@ -200,10 +209,11 @@ export function comparePwaToDatabase(pwaData: any) {
     missingFields,
     extraFields,
     isPerfectMatch: missingFields.length === 0 && extraFields.length === 0,
-    message: missingFields.length > 0 
-      ? `Missing fields: ${missingFields.join(', ')}`
-      : extraFields.length > 0
-      ? `Extra fields: ${extraFields.join(', ')}`
-      : 'Perfect match with database schema'
+    message:
+      missingFields.length > 0
+        ? `Missing fields: ${missingFields.join(', ')}`
+        : extraFields.length > 0
+          ? `Extra fields: ${extraFields.join(', ')}`
+          : 'Perfect match with database schema',
   };
-} 
+}

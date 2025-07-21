@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getHousingDetails, getHousingDetail, createHousingDetail, updateHousingDetail, deleteHousingDetail } from '../controllers/housingController';
+import {
+  getHousingDetails,
+  getHousingDetail,
+  createHousingDetail,
+  updateHousingDetail,
+  deleteHousingDetail,
+} from '../controllers/housingController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 // import { requireRole } from '../middleware/rbacMiddleware'; // Add as needed
 
@@ -22,4 +28,4 @@ router.post('/', createHousingDetail);
 router.put('/:id', updateHousingDetail);
 router.delete('/:id', deleteHousingDetail);
 
-export default router; 
+export default router;

@@ -15,31 +15,52 @@ async function getDashboardReportsData(prisma: any) {
   return {
     householdReport: {
       total: await prisma.households.count({ where: { is_deleted: false } }),
-      byCategory: await prisma.households.groupBy({ by: ['category'], where: { is_deleted: false }, _count: { category: true } }),
-      byPanchayat: await prisma.households.groupBy({ by: ['grama_panchayat'], where: { is_deleted: false }, _count: { grama_panchayat: true } })
+      byCategory: await prisma.households.groupBy({
+        by: ['category'],
+        where: { is_deleted: false },
+        _count: { category: true },
+      }),
+      byPanchayat: await prisma.households.groupBy({
+        by: ['grama_panchayat'],
+        where: { is_deleted: false },
+        _count: { grama_panchayat: true },
+      }),
     },
     memberReport: {
       total: await prisma.members.count({ where: { is_deleted: false } }),
-      byGender: await prisma.members.groupBy({ by: ['gender'], where: { is_deleted: false }, _count: { gender: true } }),
-      byEducation: await prisma.members.groupBy({ by: ['general_education_level'], where: { is_deleted: false }, _count: { general_education_level: true } })
+      byGender: await prisma.members.groupBy({
+        by: ['gender'],
+        where: { is_deleted: false },
+        _count: { gender: true },
+      }),
+      byEducation: await prisma.members.groupBy({
+        by: ['general_education_level'],
+        where: { is_deleted: false },
+        _count: { general_education_level: true },
+      }),
     },
     locationReport: {
       districts: await prisma.districts.count(),
       blocks: await prisma.blocks.count(),
       panchayats: await prisma.panchayats.count(),
-      hamlets: await prisma.hamlets.count()
-    }
+      hamlets: await prisma.hamlets.count(),
+    },
   };
 }
 
 router.get('/export/pdf', authenticateJWT, async (req, res) => {
   try {
     // Fetch report data
-    const reports = await getDashboardReportsData(req.app.get('prisma') || require('../generated/prisma'));
+    const reports = await getDashboardReportsData(
+      req.app.get('prisma') || require('../generated/prisma'),
+    );
     // Create PDF
     const doc = new PDFDocument();
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="dashboard_report_${new Date().toISOString().slice(0,10)}.pdf"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="dashboard_report_${new Date().toISOString().slice(0, 10)}.pdf"`,
+    );
     doc.text('THUNAI Dashboard Report', { align: 'center', underline: true });
     doc.moveDown();
     doc.text(`Generated: ${new Date().toLocaleString()}`);
@@ -56,14 +77,21 @@ router.get('/export/pdf', authenticateJWT, async (req, res) => {
     doc.end();
     doc.pipe(res);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate PDF', details: error instanceof Error ? error.message : 'Unknown error' });
+    res
+      .status(500)
+      .json({
+        error: 'Failed to generate PDF',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
   }
 });
 
 router.get('/export/excel', authenticateJWT, async (req, res) => {
   try {
     // Fetch report data
-    const reports = await getDashboardReportsData(req.app.get('prisma') || require('../generated/prisma'));
+    const reports = await getDashboardReportsData(
+      req.app.get('prisma') || require('../generated/prisma'),
+    );
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'THUNAI System';
     workbook.created = new Date();
@@ -73,19 +101,34 @@ router.get('/export/excel', authenticateJWT, async (req, res) => {
     sheet.addRow([`User: ${(req as any).user?.phoneNumber || 'unknown'}`]);
     sheet.addRow([]);
     sheet.addRow(['Household Report']);
-    Object.entries(reports.householdReport).forEach(([k, v]) => sheet.addRow([k, JSON.stringify(v)]));
+    Object.entries(reports.householdReport).forEach(([k, v]) =>
+      sheet.addRow([k, JSON.stringify(v)]),
+    );
     sheet.addRow([]);
     sheet.addRow(['Member Report']);
     Object.entries(reports.memberReport).forEach(([k, v]) => sheet.addRow([k, JSON.stringify(v)]));
     sheet.addRow([]);
     sheet.addRow(['Location Report']);
-    Object.entries(reports.locationReport).forEach(([k, v]) => sheet.addRow([k, JSON.stringify(v)]));
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="dashboard_report_${new Date().toISOString().slice(0,10)}.xlsx"`);
+    Object.entries(reports.locationReport).forEach(([k, v]) =>
+      sheet.addRow([k, JSON.stringify(v)]),
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="dashboard_report_${new Date().toISOString().slice(0, 10)}.xlsx"`,
+    );
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate Excel', details: error instanceof Error ? error.message : 'Unknown error' });
+    res
+      .status(500)
+      .json({
+        error: 'Failed to generate Excel',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
   }
 });
 
