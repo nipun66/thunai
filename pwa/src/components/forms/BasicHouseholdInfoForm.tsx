@@ -35,14 +35,6 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
     return error === '';
   };
 
-  const validateAll = () => {
-    let valid = true;
-    (['headOfHousehold', 'householdSize', 'address'] as (keyof BasicHouseholdInfoError)[]).forEach((field) => {
-      if (!validate(field, householdData[field])) valid = false;
-    });
-    return valid;
-  };
-
   return (
     <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, maxWidth: 500, mx: 'auto', mt: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={2} color="primary.main">
@@ -62,8 +54,7 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
           helperText={errors.headOfHousehold || 'Enter the name of the head of household'}
           required
           fullWidth
-          // Fixed pattern: only letters, spaces, apostrophes, hyphens
-          inputProps={{ pattern: "[a-zA-Z\s'-]+", minLength: 2, maxLength: 50, 'aria-label': 'Head of Household' }}
+          // Removed pattern attribute to avoid browser regex errors
         />
         <TextField
           label="Household Size"

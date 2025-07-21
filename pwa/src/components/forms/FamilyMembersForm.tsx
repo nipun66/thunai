@@ -119,8 +119,7 @@ const FamilyMembersForm: React.FC<Props> = ({ householdData, setHouseholdData })
             helperText={errors.name || 'Enter member name'}
             required
             fullWidth
-            // Fixed pattern: only letters, spaces, apostrophes, hyphens
-            inputProps={{ pattern: "[a-zA-Z '-]+", minLength: 2, maxLength: 50, 'aria-label': 'Name' }}
+            // Removed pattern attribute to avoid browser regex errors
           />
           <TextField
             select
