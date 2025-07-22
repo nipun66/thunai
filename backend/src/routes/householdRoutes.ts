@@ -82,13 +82,14 @@ import {
   debugHouseholdData,
 } from '../controllers/householdController';
 import { authenticateJWT } from '../middleware/authMiddleware';
+import { requireRole } from '../middleware/rbacMiddleware';
 
 const router = Router();
 
 // Public routes (no authentication required)
 router.get('/', getHouseholds);
 router.get('/:household_id', getHousehold);
-router.post('/', createHousehold);
+router.post('/', requireRole([2]), createHousehold);
 
 // Protected routes (authentication required)
 router.use(authenticateJWT);
@@ -97,9 +98,9 @@ router.use(authenticateJWT);
 router.post('/debug', debugHouseholdData);
 
 // PUT /api/households/:id - Update household
-router.put('/:household_id', updateHousehold);
+router.put('/:household_id', requireRole([2]), updateHousehold);
 
 // DELETE /api/households/:id - Delete household (soft delete)
-router.delete('/:household_id', deleteHousehold);
+router.delete('/:household_id', requireRole([2]), deleteHousehold);
 
 export default router;

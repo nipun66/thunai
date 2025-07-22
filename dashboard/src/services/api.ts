@@ -29,7 +29,7 @@ class DashboardApiService {
         ...options,
       };
       // Add auth token if available
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('dashboard_auth_token');
       if (token) {
         config.headers = {
           ...config.headers,
@@ -360,8 +360,8 @@ class DashboardApiService {
     });
 
     if (response.success && response.data?.token) {
-      localStorage.setItem('auth_token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('dashboard_auth_token', response.data.token);
+      localStorage.setItem('dashboard_user', JSON.stringify(response.data.user));
     }
 
     return response;
@@ -375,21 +375,21 @@ class DashboardApiService {
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('dashboard_auth_token');
+    localStorage.removeItem('dashboard_user');
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!localStorage.getItem('dashboard_auth_token');
   }
 
   getCurrentUser(): any {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('dashboard_user');
     return userStr ? JSON.parse(userStr) : null;
   }
 
   getAuthToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('dashboard_auth_token');
   }
 
   // Dashboard statistics

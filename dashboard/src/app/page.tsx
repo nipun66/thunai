@@ -30,6 +30,12 @@ import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import HouseholdDetailView from '../components/HouseholdDetailView';
 import { dashboardApiService } from '../services/api';
 import { UserContext, useUser } from './UserContext';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // User roles based on SRS specifications
 const userRoles: UserRole[] = [
@@ -597,7 +603,11 @@ export default function Dashboard() {
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [selectedHousehold, setSelectedHousehold] = useState<HouseholdData | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  
+  const [editHousehold, setEditHousehold] = useState<HouseholdData | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
@@ -729,10 +739,64 @@ export default function Dashboard() {
     setCurrentPage(page);
   };
 
-  // Role-based UI controls
-  const canEdit = user && [2].includes(user.role_id); // Only enumerator can edit
-  const canExport = user && [6, 7].includes(user.role_id); // Only officers can export
-  const canReport = user && [6, 7].includes(user.role_id); // Only officers can report
+  const handleEditClick = (household: HouseholdData) => {
+    setEditHousehold({ ...household });
+    setEditError('');
+  };
+
+  const handleEditChange = (field: keyof HouseholdData, value: any) => {
+    if (!editHousehold) return;
+    setEditHousehold({ ...editHousehold, [field]: value });
+  };
+
+  const handleEditSave = async () => {
+    if (!editHousehold) return;
+    setEditLoading(true);
+    setEditError('');
+    try {
+      const response = await dashboardApiService.updateHousehold(editHousehold.household_id, editHousehold);
+      if (response.success) {
+        setEditHousehold(null);
+        fetchHouseholds();
+      } else {
+        setEditError(response.error || 'Failed to update household');
+      }
+    } catch (err: any) {
+      setEditError(err.message || 'Failed to update household');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditHousehold(null);
+    setEditError('');
+  };
+
+  const handleDelete = async () => {
+    if (!editHousehold) return;
+    setDeleteLoading(true);
+    setEditError('');
+    try {
+      const response = await dashboardApiService.deleteHousehold(editHousehold.household_id);
+      if (response.success) {
+        setEditHousehold(null);
+        fetchHouseholds();
+      } else {
+        setEditError(response.error || 'Failed to delete household');
+      }
+    } catch (err: any) {
+      setEditError(err.message || 'Failed to delete household');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Strict SRS RBAC: Only enumerator (role_id 2) can edit
+  const canEdit = !!user && typeof user.role_id !== 'undefined' && Number(user.role_id) === 2;
+  // Only Panchayath Officer (6) and District Officer (7) can export/report
+  const canExport = !!user && typeof user.role_id !== 'undefined' && [6, 7].includes(Number(user.role_id));
+  const canReport = !!user && typeof user.role_id !== 'undefined' && [6, 7].includes(Number(user.role_id));
 
   // Professional, scalable, interactive Overview with MUI
   const statCards = [
@@ -893,13 +957,14 @@ export default function Dashboard() {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 160,
+      width: 200,
       sortable: false,
       filterable: false,
       renderCell: (params: any) => (
         <>
           <button className="btn btn-sm btn-view" onClick={() => handleViewDetails(params.row)}>View Details</button>
-          <Button disabled={!canEdit} title={!canEdit ? 'Only enumerators can edit data' : ''}>Edit</Button>
+          <Button disabled={!canEdit} title={!canEdit ? 'Only enumerators can edit data' : ''} onClick={() => handleEditClick(params.row)}>Edit</Button>
+          <Button disabled={!canEdit} color="error" title={!canEdit ? 'Only enumerators can delete data' : ''} onClick={() => handleEditClick(params.row)}>Delete</Button>
         </>
       ),
     },
@@ -1079,6 +1144,100 @@ export default function Dashboard() {
     </Box>
   );
 
+  // Edit Household Modal
+  const renderEditHouseholdModal = () => (
+    <Dialog open={!!editHousehold} onClose={handleEditCancel} maxWidth="sm" fullWidth>
+      <DialogTitle>Edit Household</DialogTitle>
+      <DialogContent>
+        {editError && <Typography color="error" mb={2}>{editError}</Typography>}
+        {editHousehold && (
+          <>
+            <TextField
+              label="Head of Household"
+              value={editHousehold.household_head_name || ''}
+              onChange={e => handleEditChange('household_head_name', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Address"
+              value={editHousehold.address || ''}
+              onChange={e => handleEditChange('address', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Post Office"
+              value={editHousehold.post_office || ''}
+              onChange={e => handleEditChange('post_office', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Colony/Settlement Name"
+              value={editHousehold.colony_settlement_name || ''}
+              onChange={e => handleEditChange('colony_settlement_name', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Category"
+              value={editHousehold.category || ''}
+              onChange={e => handleEditChange('category', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Micro Plan Number"
+              value={editHousehold.micro_plan_number || ''}
+              onChange={e => handleEditChange('micro_plan_number', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Grama Panchayat"
+              value={editHousehold.grama_panchayat || ''}
+              onChange={e => handleEditChange('grama_panchayat', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Ward Number"
+              value={editHousehold.ward_number || ''}
+              onChange={e => handleEditChange('ward_number', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="House Number"
+              value={editHousehold.house_number || ''}
+              onChange={e => handleEditChange('house_number', e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Family Members Count"
+              type="number"
+              value={editHousehold.family_members_count || 0}
+              onChange={e => handleEditChange('family_members_count', Number(e.target.value))}
+              fullWidth
+              margin="normal"
+            />
+          </>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleEditCancel} disabled={editLoading || deleteLoading}>Cancel</Button>
+        <Button onClick={handleEditSave} disabled={editLoading || deleteLoading} variant="contained" color="primary">
+          {editLoading ? <CircularProgress size={20} /> : 'Save'}
+        </Button>
+        <Button onClick={handleDelete} disabled={editLoading || deleteLoading} variant="contained" color="error">
+          {deleteLoading ? <CircularProgress size={20} /> : 'Delete'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   // Main Dashboard Layout
   if (!isLoggedIn) {
     return renderLoginForm();
@@ -1129,6 +1288,9 @@ export default function Dashboard() {
           onClose={handleCloseDetails} 
         />
       )}
+
+      {/* Edit Household Modal */}
+      {renderEditHouseholdModal()}
     </Box>
   );
 }

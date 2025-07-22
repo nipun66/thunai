@@ -76,7 +76,7 @@ const EntitlementsForm: React.FC<Props> = ({ householdData, onChange }) => {
         <TextField
           select
           label="Entitlement Type"
-          value={householdData.entitlements.entitlementType}
+          value={householdData.entitlements.entitlementType ?? ''}
           onChange={e => { onChange('entitlements', 'entitlementType', e.target.value); validate('entitlementType', e.target.value); }}
           onBlur={e => validate('entitlementType', e.target.value)}
           error={!!errors.entitlementType}

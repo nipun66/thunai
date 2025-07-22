@@ -231,16 +231,25 @@ const ElectricalFacilitiesForm: React.FC<Props> = ({ householdData, onChange }) 
           <TextField
             select
             label="Types of Bulbs Used"
-            multiple
-            value={electricalFacilities.bulbTypes}
+            value={Array.isArray(electricalFacilities.bulbTypes) ? electricalFacilities.bulbTypes : []}
             onChange={(e) => {
-              const options = Array.from(e.target.selectedOptions, option => option.value);
-              onChange('electricalFacilities', 'bulbTypes', options);
-              validate('bulbTypes', options);
+              let value = e.target.value;
+              if (typeof value === 'string') {
+                value = value ? value.split(',') : [];
+              }
+              if (!Array.isArray(value)) {
+                value = [];
+              }
+              onChange('electricalFacilities', 'bulbTypes', value);
+              validate('bulbTypes', value);
             }}
             fullWidth
             error={Boolean(errors.bulbTypes)}
             helperText={errors.bulbTypes}
+            SelectProps={{
+              multiple: true,
+              renderValue: (selected) => (Array.isArray(selected) ? selected.join(', ') : ''),
+            }}
           >
             <MenuItem value="Incandescent">Incandescent</MenuItem>
             <MenuItem value="CFL">CFL</MenuItem>

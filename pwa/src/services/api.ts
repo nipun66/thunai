@@ -70,7 +70,7 @@ class ApiService {
       };
 
       // Add auth token if available
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('pwa_auth_token');
       if (token) {
         config.headers = {
           ...config.headers,
@@ -255,8 +255,8 @@ class ApiService {
     });
 
     if (response.success && response.data?.token) {
-      localStorage.setItem('auth_token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('pwa_auth_token', response.data.token);
+      localStorage.setItem('pwa_user', JSON.stringify(response.data.user));
     }
 
     return response;
@@ -273,21 +273,21 @@ class ApiService {
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('pwa_auth_token');
+    localStorage.removeItem('pwa_user');
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!localStorage.getItem('pwa_auth_token');
   }
 
   getCurrentUser(): any {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('pwa_user');
     return userStr ? JSON.parse(userStr) : null;
   }
 
   getAuthToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('pwa_auth_token');
   }
 }
 

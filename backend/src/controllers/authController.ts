@@ -222,6 +222,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         full_name: user.full_name,
         phone_number: user.phone_number,
         role_id: user.role_id,
+        roleId: user.role_id, // Add for compatibility
         role_name: user.roles.role_name,
       },
     });
@@ -262,6 +263,7 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
         full_name: user.full_name,
         phone_number: user.phone_number,
         role_id: user.role_id,
+        roleId: user.role_id, // Add for compatibility
         role_name: user.roles.role_name,
       },
     });

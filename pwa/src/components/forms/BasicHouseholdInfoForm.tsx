@@ -60,9 +60,9 @@ const BasicHouseholdInfoForm: React.FC<Props> = ({ householdData, onChange }) =>
           label="Household Size"
           type="number"
           inputProps={{ min: 1, max: 30, step: 1, 'aria-label': 'Household Size' }}
-          value={householdData.householdSize === 0 ? '' : householdData.householdSize}
+          value={householdData.householdSize ?? ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const val = e.target.value === '' ? '' : parseInt(e.target.value);
+            const val = e.target.value === '' ? '' : parseInt(e.target.value, 10);
             onChange('householdSize', val);
             validate('householdSize', val);
           }}

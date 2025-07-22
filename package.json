@@ -33,6 +33,7 @@
     "typescript": "^5.5.0"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
     "@tailwindcss/postcss": "^4.1.11",
     "node-fetch": "^3.3.2"
   }

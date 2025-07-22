@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticateJWT } from '../middleware/authMiddleware';
+import { requireRole } from '../middleware/rbacMiddleware';
 
 const router = Router();
 
@@ -79,7 +80,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/members - Create new member
-router.post('/', async (req, res) => {
+router.post('/', requireRole([2]), async (req, res) => {
   try {
     res.json({ success: true, message: 'Create member endpoint - to be implemented' });
   } catch (error) {
@@ -89,7 +90,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/members/:id - Update member
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireRole([2]), async (req, res) => {
   try {
     res.json({ success: true, message: 'Update member endpoint - to be implemented' });
   } catch (error) {
@@ -99,7 +100,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/members/:id - Delete member
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireRole([2]), async (req, res) => {
   try {
     res.json({ success: true, message: 'Delete member endpoint - to be implemented' });
   } catch (error) {
