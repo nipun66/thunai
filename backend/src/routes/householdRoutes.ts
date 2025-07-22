@@ -89,10 +89,12 @@ const router = Router();
 // Public routes (no authentication required)
 router.get('/', getHouseholds);
 router.get('/:household_id', getHousehold);
-router.post('/', requireRole([2]), createHousehold);
 
 // Protected routes (authentication required)
 router.use(authenticateJWT);
+
+// POST /api/households - Create household (requires authentication + role 2)
+router.post('/', requireRole([2]), createHousehold);
 
 // POST /api/households/debug - Debug data transformation
 router.post('/debug', debugHouseholdData);

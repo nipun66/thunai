@@ -50,7 +50,8 @@ app.use(
 app.use(
   cors({
     origin: [
-      'http://localhost:3000', // Dashboard
+      'http://localhost:3000', // Dashboard (old port)
+      'http://localhost:3001', // Dashboard (new port)
       'http://localhost:5173', // PWA
       'http://localhost:4173', // PWA preview
       'https://thunai-dashboard.vercel.app', // Production dashboard

@@ -1098,8 +1098,11 @@ function App() {
               Next →
             </button>
           ) : (
-            <button onClick={saveData} className="nav-btn save">
-              💾 Save Data
+            <button 
+              onClick={!isLoggedIn ? () => setShowLogin(true) : saveData} 
+              className={`nav-btn save ${!isLoggedIn ? 'auth-required' : ''}`}
+            >
+              {!isLoggedIn ? '🔐 Login Required to Save' : '💾 Save Data'}
             </button>
           )}
         </div>
